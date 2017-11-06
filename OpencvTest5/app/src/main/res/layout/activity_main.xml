@@ -6,7 +6,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
 
-    tools:context="com.example.hellsinger.opencvtest5.MainActivity">
+    tools:context="com.example.hellsinger.opencvtest5.MainActivity"
+>
 
     <org.opencv.android.JavaCameraView
         android:id="@+id/main_surface"
@@ -16,5 +17,26 @@
         opencv:show_fps="true"
         opencv:camera_id="any"
     />
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="bottom"
+    >
+        <Button
+            android:layout_width="200dp"
+            android:layout_height="60dp"
+            android:text="@string/interface_show_camera"
+        />
+        <Button
+            android:layout_width="200dp"
+            android:layout_height="60dp"
+            android:text="@string/interface_show_depth_map"
+        />
+        <Button
+            android:layout_width="200dp"
+            android:layout_height="60dp"
+            android:text="@string/interface_show_analysed"
+        />
 
+    </RelativeLayout>
 </FrameLayout>
