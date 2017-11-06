@@ -90,13 +90,13 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     public void onPause() {
         super.onPause();
         disableCamera();
-        synchronized (this) {
+        /*synchronized (this) {
             try {
                 mTango.disconnect();
             } catch (TangoErrorException e) {
                 Log.e(TAG, getString(R.string.exception_tango_error), e);
             }
-        }
+        }*/
     }
 
     @Override
