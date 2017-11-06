@@ -16,7 +16,7 @@
 			"abi" : "armeabi-v7a",
 			"artifactName" : "lib_opencv",
 			"buildType" : "release",
-			"output" : "C:/Users/Flavien/Documents/Git_Projects/PSTTango/OpencvTest5/app/src/main/jniLibs/armeabi-v7a/libopencv_java.so",
+			"output" : "C:/Users/Flavien/Documents/Git_Projects/PSTTango/OpencvTest5/app/src/main/jniLibs/armeabi-v7a/libopencv_java3.so",
 			"toolchain" : "3862612189"
 		},
 		"native-lib-Release-armeabi-v7a" : 
@@ -29,7 +29,7 @@
 			[
 				
 				{
-					"flags" : "  --target=armv7-none-linux-androideabi --gcc-toolchain=C:/Users/Flavien/AppData/Local/Android/Sdk/ndk-bundle/toolchains/arm-linux-androideabi-4.9/prebuilt/windows-x86_64 --sysroot=C:/Users/Flavien/AppData/Local/Android/Sdk/ndk-bundle/sysroot  -Dnative_lib_EXPORTS -I..\\..\\..\\..\\..\\..\\Modules\\OpenCV-2.4.9-android-sdk\\sdk\\native\\jni\\include -isystem C:\\Users\\Flavien\\AppData\\Local\\Android\\Sdk\\ndk-bundle\\sources\\cxx-stl\\gnu-libstdc++\\4.9\\include -isystem C:\\Users\\Flavien\\AppData\\Local\\Android\\Sdk\\ndk-bundle\\sources\\cxx-stl\\gnu-libstdc++\\4.9\\libs\\armeabi-v7a\\include -isystem C:\\Users\\Flavien\\AppData\\Local\\Android\\Sdk\\ndk-bundle\\sources\\cxx-stl\\gnu-libstdc++\\4.9\\include\\backward  -isystem C:/Users/Flavien/AppData/Local/Android/Sdk/ndk-bundle/sysroot/usr/include/arm-linux-androideabi -D__ANDROID_API__=23 -g -DANDROID -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -march=armv7-a -mfloat-abi=softfp -mfpu=vfpv3-d16 -fno-integrated-as -mthumb -Wa,--noexecstack -Wformat -Werror=format-security  -std=c++11 -frtti -fexceptions -Os -DNDEBUG  -fPIC    -c ",
+					"flags" : "  --target=armv7-none-linux-androideabi --gcc-toolchain=C:/Users/Flavien/AppData/Local/Android/Sdk/ndk-bundle/toolchains/arm-linux-androideabi-4.9/prebuilt/windows-x86_64 --sysroot=C:/Users/Flavien/AppData/Local/Android/Sdk/ndk-bundle/sysroot  -Dnative_lib_EXPORTS -I..\\..\\..\\..\\..\\..\\Modules\\OpenCV-android-sdk\\sdk\\native\\jni\\include -isystem C:\\Users\\Flavien\\AppData\\Local\\Android\\Sdk\\ndk-bundle\\sources\\cxx-stl\\gnu-libstdc++\\4.9\\include -isystem C:\\Users\\Flavien\\AppData\\Local\\Android\\Sdk\\ndk-bundle\\sources\\cxx-stl\\gnu-libstdc++\\4.9\\libs\\armeabi-v7a\\include -isystem C:\\Users\\Flavien\\AppData\\Local\\Android\\Sdk\\ndk-bundle\\sources\\cxx-stl\\gnu-libstdc++\\4.9\\include\\backward  -isystem C:/Users/Flavien/AppData/Local/Android/Sdk/ndk-bundle/sysroot/usr/include/arm-linux-androideabi -D__ANDROID_API__=23 -g -DANDROID -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -march=armv7-a -mfloat-abi=softfp -mfpu=vfpv3-d16 -fno-integrated-as -mthumb -Wa,--noexecstack -Wformat -Werror=format-security  -std=c++11 -frtti -fexceptions -Os -DNDEBUG  -fPIC    -c ",
 					"src" : "C:/Users/Flavien/Documents/Git_Projects/PSTTango/OpencvTest5/app/src/main/cpp/native-lib.cpp",
 					"workingDirectory" : "C:/Users/Flavien/Documents/Git_Projects/PSTTango/OpencvTest5/app/.externalNativeBuild/cmake/release/armeabi-v7a"
 				}
