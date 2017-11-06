@@ -84,6 +84,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         _cameraBridgeViewBase = (CameraBridgeViewBase) findViewById(R.id.main_surface);
         _cameraBridgeViewBase.setVisibility(SurfaceView.VISIBLE);
         _cameraBridgeViewBase.setCvCameraViewListener(this);
+
     }
 
     @Override
