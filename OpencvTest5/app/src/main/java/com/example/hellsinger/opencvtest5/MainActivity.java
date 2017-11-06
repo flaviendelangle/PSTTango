@@ -32,7 +32,7 @@ import java.util.ArrayList;
 import com.google.atap.tangoservice.*;
 import com.google.atap.tangoservice.Tango.OnTangoUpdateListener;
 
-/*import com.projecttango.tangosupport.TangoSupport;*/
+import com.projecttango.tangosupport.TangoSupport;
 
 public class MainActivity extends AppCompatActivity implements CameraBridgeViewBase.CvCameraViewListener2 {
 
@@ -41,7 +41,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
 
     private Tango mTango;
     private TangoConfig mConfig;
-    //private TangoSupport.DepthBuffer depthBuf;
+    private TangoSupport.DepthBuffer depthBuf;
 
     static {
         /*if (OpenCVLoader.initDebug()) {
@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
             switch (status) {
                 case LoaderCallbackInterface.SUCCESS: {
                     Log.i(TAG, "OpenCV loaded successfully");
-                    System.loadLibrary("native-lib");
+                    //System.loadLibrary("native-lib");
                     _cameraBridgeViewBase.enableView();
                 }
                 break;
@@ -90,13 +90,13 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     public void onPause() {
         super.onPause();
         disableCamera();
-        /*synchronized (this) {
+        synchronized (this) {
             try {
                 mTango.disconnect();
             } catch (TangoErrorException e) {
                 Log.e(TAG, getString(R.string.exception_tango_error), e);
             }
-        }*/
+        }
     }
 
     @Override
@@ -111,7 +111,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
             _baseLoaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
         }
 
-        /*mTango = new Tango(MainActivity.this, new Runnable() {
+        mTango = new Tango(MainActivity.this, new Runnable() {
             @Override
             public void run() {
                 TangoSupport.initialize(mTango);
@@ -132,7 +132,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
                     }
                 }
             }
-        });*/
+        });
     }
 
     /**
@@ -152,7 +152,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
      * after Tango connection.
      * Listen to new Point Cloud data.
      */
-    /*private void startupTango() {
+    private void startupTango() {
         // Lock configuration and connect to Tango.
         // Select coordinate frame pair.
         final ArrayList<TangoCoordinateFramePair> framePairs =
@@ -218,7 +218,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
                 // We are not using onFrameAvailable for this application.
             }
         });
-    }*/
+    }
 
     /**
      * Display toast on UI thread.
