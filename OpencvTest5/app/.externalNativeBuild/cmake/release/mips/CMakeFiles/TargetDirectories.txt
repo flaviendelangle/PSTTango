@@ -1,3 +1,0 @@
-C:/Users/Flavien/Documents/Git_Projects/PSTTango/OpencvTest5/app/.externalNativeBuild/cmake/release/mips/CMakeFiles/native-lib.dir
-C:/Users/Flavien/Documents/Git_Projects/PSTTango/OpencvTest5/app/.externalNativeBuild/cmake/release/mips/CMakeFiles/edit_cache.dir
-C:/Users/Flavien/Documents/Git_Projects/PSTTango/OpencvTest5/app/.externalNativeBuild/cmake/release/mips/CMakeFiles/rebuild_cache.dir
