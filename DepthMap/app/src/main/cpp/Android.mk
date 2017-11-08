@@ -1,6 +1,7 @@
 LOCAL_PATH := $(call my-dir)
-PROJECT_ROOT := C:/Users/Flavien/Documents/Git_Projects/PSTTango
-CVROOT := ${LOCAL_ROOT}/Modules/OpenCV-android-sdk/sdk/native/jni
+include $(LOCAL_PATH)/../../../../userPaths.mk
+
+CVROOT := ${PROJECT_ROOT}/Modules/OpenCV-android-sdk/sdk/native/jni
 
 include $(CLEAR_VARS)
 
