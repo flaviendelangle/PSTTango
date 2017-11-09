@@ -91,20 +91,22 @@ namespace {
         int width = static_cast<int>(ccIntrinsics.width);
         int height = static_cast<int>(ccIntrinsics.height);
 
+        LOGI("Width: %d, height: %d", width, height);
+
         for (int k = 0; k < vertices_count_; ++k) {
 
             float X = vertices_[k * 3];
             float Y = vertices_[k * 3 + 1];
             float Z = vertices_[k * 3 + 2];
 
-            LOGI("x: %f, y: %f, z: %f,", X, Y, Z);
+            //LOGI("x: %f, y: %f, z: %f,", X, Y, Z);
 
             // project points with intrinsics
             int x = static_cast<int>(fx * (X / Z) + cx);
             int y = static_cast<int>(fy * (Y / Z) + cy);
 
             if (x < 0 || x > width || y < 0 || y > height) {
-                continue;
+                //continue;
             }
 
             uint8_t depth_value = UCHAR_MAX - ((Z * 1000) * UCHAR_MAX / 4500);
@@ -235,6 +237,13 @@ namespace depth_map {
                     "HelloDepthPerceptionApp::OnTangoServiceConnected,"
                             "Failed to connect to point cloud callback with error code: %d",
                     ret);
+            std::exit(EXIT_SUCCESS);
+        }
+
+        // Get camrea intrinsics
+        ret = TangoService_getCameraIntrinsics(TANGO_CAMERA_DEPTH, &ccIntrinsics);
+        if (ret != TANGO_SUCCESS) {
+            LOGE("VideoOverlayApp: Failed get camrea intrinsics - error code: %d", ret);
             std::exit(EXIT_SUCCESS);
         }
 
