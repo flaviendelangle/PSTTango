@@ -42,7 +42,6 @@ public class TangoDepthMapActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-
         setContentView(R.layout.activity_main);
 
         if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED)
@@ -69,8 +68,6 @@ public class TangoDepthMapActivity extends AppCompatActivity
                 public void onDisplayRemoved(int displayId) {}
             }, null);
         }
-
-
 
         // Configure OpenGL renderer
         mSurfaceView = (GLSurfaceView) findViewById(R.id.surfaceview);
