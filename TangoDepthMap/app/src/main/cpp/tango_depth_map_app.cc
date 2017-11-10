@@ -317,6 +317,10 @@ namespace tango_depth_map {
         main_scene_.SetDepthAlphaValue(alpha);
     }
 
+    void SynchronizationApplication::SetRenderingDistance(int renderingDistance) {
+        depth_image_.SetRenderingDistance(renderingDistance);
+    }
+
     //void SynchronizationApplication::SetGPUUpsample(bool on) { gpu_upsample_ = on; }
 
     void SynchronizationApplication::OnDisplayChanged(int display_rotation,

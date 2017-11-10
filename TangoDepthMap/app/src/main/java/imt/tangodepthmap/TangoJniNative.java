@@ -24,44 +24,46 @@ import android.util.Log;
  * Interfaces between C and Java.
  */
 public class TangoJNINative {
-  static {
-    // This project depends on tango_client_api, so we need to make sure we load
-    // the correct library first.
-    if (TangoInitializationHelper.loadTangoSharedLibrary() ==
-        TangoInitializationHelper.ARCH_ERROR) {
-      Log.e("TangoJNINative", "ERROR! Unable to load libtango_client_api.so!");
+    static {
+        // This project depends on tango_client_api, so we need to make sure we load
+        // the correct library first.
+        if (TangoInitializationHelper.loadTangoSharedLibrary() ==
+                TangoInitializationHelper.ARCH_ERROR) {
+            Log.e("TangoJNINative", "ERROR! Unable to load libtango_client_api.so!");
+        }
+        System.loadLibrary("depth_map");
     }
-    System.loadLibrary("depth_map");
-  }
 
-  /**
-   * Interfaces to native OnCreate function.
-   *
-   * @param callerActivity the caller activity of this function.
-   */
-  public static native void onCreate(Activity callerActivity);
+    /**
+     * Interfaces to native OnCreate function.
+     *
+     * @param callerActivity the caller activity of this function.
+     */
+    public static native void onCreate(Activity callerActivity);
 
-  /**
-   * Called when the Tango service is connected successfully.
-   *
-   * @param nativeTangoServiceBinder The native binder object.
-   */
-  public static native void onTangoServiceConnected(IBinder nativeTangoServiceBinder);
+    /**
+     * Called when the Tango service is connected successfully.
+     *
+     * @param nativeTangoServiceBinder The native binder object.
+     */
+    public static native void onTangoServiceConnected(IBinder nativeTangoServiceBinder);
 
-  /**
-   * Interfaces to native OnPause function.
-   */
-  public static native void onPause();
+    /**
+     * Interfaces to native OnPause function.
+     */
+    public static native void onPause();
 
-  public static native void onGlSurfaceCreated();
+    public static native void onGlSurfaceCreated();
 
-  public static native void onGlSurfaceChanged(int width, int height);
+    public static native void onGlSurfaceChanged(int width, int height);
 
-  public static native void onGlSurfaceDrawFrame();
+    public static native void onGlSurfaceDrawFrame();
 
-  public static native void setDepthAlphaValue(float alpha);
+    public static native void setDepthAlphaValue(float alpha);
 
-  //public static native void setGPUUpsample(boolean on);
+    public static native void setRenderingDistanceValue(int renderingDistance);
 
-  public static native void onDisplayChanged(int displayRotation, int colorCameraRotation);
+    //public static native void setGPUUpsample(boolean on);
+
+    public static native void onDisplayChanged(int displayRotation, int colorCameraRotation);
 }

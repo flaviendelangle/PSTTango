@@ -67,6 +67,12 @@ Java_imt_tangodepthmap_TangoJNINative_setDepthAlphaValue(
     return app.SetDepthAlphaValue(alpha);
 }
 
+JNIEXPORT void JNICALL
+Java_imt_tangodepthmap_TangoJNINative_setRenderingDistanceValue(
+        JNIEnv *, jobject ,jint renderingDistance) {
+    return app.SetRenderingDistance(renderingDistance);
+}
+
 /*JNIEXPORT void JNICALL
 Java_imt_tangodepthmap_TangoJNINative_setGPUUpsample(
     JNIEnv*, jobject, jboolean on) {

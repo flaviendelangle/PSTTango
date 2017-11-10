@@ -88,6 +88,8 @@ namespace tango_depth_map {
         // Set the transparency of Depth Image.
         void SetDepthAlphaValue(float alpha);
 
+        void SetRenderingDistance(int renderingDistance);
+
         // Set whether to use GPU or CPU upsampling
         //void SetGPUUpsample(bool on);
 

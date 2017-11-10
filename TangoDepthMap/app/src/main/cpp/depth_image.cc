@@ -17,6 +17,10 @@
 #include "tango-gl/conversions.h"
 #include "tango-gl/camera.h"
 
+#include "opencv2/core/core.hpp"
+#include "opencv2/imgproc/imgproc.hpp"
+#include "opencv2/highgui/highgui.hpp"
+
 #include "tango_depth_map/depth_image.h"
 
 namespace {
@@ -58,7 +62,8 @@ namespace tango_depth_map {
               fbo_handle_(0),
               vertex_buffer_handle_(0),
               vertices_handle_(0),
-              mvp_handle_(0) {}
+              mvp_handle_(0),
+              mRenderingDistance (1000) {}
 
     DepthImage::~DepthImage() {}
 
@@ -243,13 +248,14 @@ namespace tango_depth_map {
             float depth_value = color_t1_point.z;
             uint8_t grayscale_value = UCHAR_MAX -
                                       (color_t1_point.z * kMeterToMillimeter) * UCHAR_MAX /
-                                      kMaxDepthDistance;
-
-            //COPY BUFFER OPENCV
+                                      mRenderingDistance /*kMaxDepthDistance*/;
 
             UpSampleDepthAroundPoint(grayscale_value, depth_value, pixel_x, pixel_y,
                                      &grayscale_display_buffer_, &depth_map_buffer_);
         }
+
+        //OPENCV HERE
+        cv::Mat depthmap(depth_image_height, depth_image_width, CV_8UC1, &grayscale_display_buffer_);
 
         this->CreateOrBindCPUTexture();
         glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, depth_image_width, depth_image_height,

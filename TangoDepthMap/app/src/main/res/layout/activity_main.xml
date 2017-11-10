@@ -21,12 +21,6 @@
         android:layout_height="fill_parent" 
        	android:layout_gravity="top"
         />
-    <ToggleButton
-        android:id="@+id/yuv_switcher"
-        android:layout_width="150dp"
-        android:layout_height="wrap_content"
-        android:text="YUV"
-        android:onClick="renderModeClicked" />
 
     <SeekBar
         android:layout_width="250dp"
@@ -34,15 +28,15 @@
         android:id="@+id/depth_overlay_alpha_seekbar"
         android:layout_alignParentBottom="true"
         android:layout_alignParentStart="true"
-        android:max="100"
-        android:progress="50"
+        android:max="4500"
+        android:progress="500"
         android:indeterminate="false" />
 
     <CheckBox
-        android:id="@+id/debug_overlay_checkbox"
-        android:layout_width="300dp"
+        android:id="@+id/depthmap_checkbox"
+        android:layout_width="150dp"
         android:layout_height="wrap_content"
-        android:text="Debug Overlay"
+        android:text="Depth map"
         android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
         android:checked="false"

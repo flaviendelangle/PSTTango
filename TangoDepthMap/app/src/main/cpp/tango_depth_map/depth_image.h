@@ -76,6 +76,8 @@ namespace tango_depth_map {
         // and undistort the image to the right size.
         void SetCameraIntrinsics(TangoCameraIntrinsics intrinsics);
 
+        void SetRenderingDistance(int renderingDistance) { mRenderingDistance = renderingDistance; }
+
     private:
         // Initialize the OpenGL structures needed to render depth image to texture.
         // Returns true if the texture was created and false if an existing texture
@@ -108,13 +110,15 @@ namespace tango_depth_map {
                                       std::vector<float> *depth_map_buffer);
 
         // The defined max distance for a depth value.
-        static const int kMaxDepthDistance = 3000;
+        static const int kMaxDepthDistance = 5000;
+
+        int mRenderingDistance;
 
         // The meter to millimeter conversion.
         static const int kMeterToMillimeter = 1000;
 
         // Window size for splatter upsample
-        static const int kWindowSize = 7;
+        static const int kWindowSize = 4;
 
         // The depth texture id. This is used for other rendering class to
         // render, in this class, we only write value to this texture via
