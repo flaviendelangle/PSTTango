@@ -17,63 +17,66 @@
 #define GLM_FORCE_RADIANS
 
 #include <jni.h>
-#include "depth_map/depth_map.h"
 
-static depth_map::DepthMap app;
+#include "tango_depth_map/tango_depth_map_app.h"
+
+static tango_depth_map::SynchronizationApplication app;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 JNIEXPORT void JNICALL
-Java_imt_tangodepthmap_TangoJniNative_onCreate(
-    JNIEnv* env, jobject, jobject activity) {
-  app.OnCreate(env, activity);
+Java_imt_tangodepthmap_TangoJNINative_onCreate(
+        JNIEnv *env, jobject, jobject activity) {
+    app.OnCreate(env, activity);
 }
 
 JNIEXPORT void JNICALL
-Java_imt_tangodepthmap_TangoJniNative_onTangoServiceConnected(
-    JNIEnv* env, jobject, jobject binder) {
-  app.OnTangoServiceConnected(env, binder);
+Java_imt_tangodepthmap_TangoJNINative_onTangoServiceConnected(
+        JNIEnv *env, jobject, jobject iBinder) {
+    app.OnTangoServiceConnected(env, iBinder);
 }
 
 JNIEXPORT void JNICALL
-Java_imt_tangodepthmap_TangoJniNative_onPause(
-    JNIEnv*, jobject) {
-  app.OnPause();
+Java_imt_tangodepthmap_TangoJNINative_onPause(
+        JNIEnv *, jobject) {
+    app.OnPause();
 }
 
 JNIEXPORT void JNICALL
-Java_imt_tangodepthmap_TangoJniNative_onGlSurfaceCreated(
-    JNIEnv*, jobject) {
-  app.OnSurfaceCreated();
+Java_imt_tangodepthmap_TangoJNINative_onGlSurfaceCreated(
+        JNIEnv *, jobject) {
+    app.OnSurfaceCreated();
 }
 
 JNIEXPORT void JNICALL
-Java_imt_tangodepthmap_TangoJniNative_onGlSurfaceChanged(
-    JNIEnv*, jobject, jint width, jint height) {
-  app.OnSurfaceChanged(width, height);
+Java_imt_tangodepthmap_TangoJNINative_onGlSurfaceChanged(
+        JNIEnv *, jobject, jint width, jint height) {
+    app.OnSurfaceChanged(width, height);
 }
 
 JNIEXPORT void JNICALL
-Java_imt_tangodepthmap_TangoJniNative_onGlSurfaceDrawFrame(
-    JNIEnv*, jobject) {
-  app.OnDrawFrame();
+Java_imt_tangodepthmap_TangoJNINative_onGlSurfaceDrawFrame(
+        JNIEnv *, jobject) {
+    app.OnDrawFrame();
 }
 
 JNIEXPORT void JNICALL
-Java_imt_tangodepthmap_TangoJniNative_setYuvMethod(
-    JNIEnv*, jobject, jboolean use_yuv_method) {
-  if (use_yuv_method) {
-    app.SetTextureMethod(depth_map::DepthMap::TextureMethod::kYuv);
-  } else {
-    app.SetTextureMethod(depth_map::DepthMap::TextureMethod::kTextureId);
-  }
+Java_imt_tangodepthmap_TangoJNINative_setDepthAlphaValue(
+        JNIEnv *, jobject, jfloat alpha) {
+    return app.SetDepthAlphaValue(alpha);
 }
 
+/*JNIEXPORT void JNICALL
+Java_imt_tangodepthmap_TangoJNINative_setGPUUpsample(
+    JNIEnv*, jobject, jboolean on) {
+  return app.SetGPUUpsample(on);
+}*/
+
 JNIEXPORT void JNICALL
-Java_imt_tangodepthmap_TangoJniNative_onDisplayChanged(
-    JNIEnv* /*env*/, jobject /*obj*/, jint display_rotation) {
-  app.OnDisplayChanged(display_rotation);
+Java_imt_tangodepthmap_TangoJNINative_onDisplayChanged(
+        JNIEnv *, jobject, jint display_rotation, jint color_camera_rotation) {
+    return app.OnDisplayChanged(display_rotation, color_camera_rotation);
 }
 
 #ifdef __cplusplus
