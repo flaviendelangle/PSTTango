@@ -82,7 +82,7 @@ namespace tango_depth_map {
 
         void SetRenderingDistance(int renderingDistance) { mRenderingDistance = renderingDistance; }
 
-        void SetRecordingMode(bool isRecording) { mIsRecording = isRecording; }
+        void SetRecordingMode(bool isRecording, std::string path) { mIsRecording = isRecording; recPath = path; }
 
     private:
         // Initialize the OpenGL structures needed to render depth image to texture.
@@ -121,6 +121,8 @@ namespace tango_depth_map {
         int mRenderingDistance;
 
         bool mIsRecording;
+
+        std::string recPath;
 
         // The meter to millimeter conversion.
         static const int kMeterToMillimeter = 1000;

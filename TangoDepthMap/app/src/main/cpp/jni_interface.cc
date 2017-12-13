@@ -28,7 +28,12 @@ extern "C" {
 JNIEXPORT void JNICALL
 Java_imt_tangodepthmap_TangoJNINative_onCreate(
         JNIEnv *env, jobject, jobject activity, jstring path) {
-    app.OnCreate(env, activity, path);
+
+    const char *pathString = env->GetStringUTFChars(path, JNI_FALSE);
+
+    app.OnCreate(env, activity, std::string(pathString));
+
+    env->ReleaseStringUTFChars(path, pathString);
 }
 
 JNIEXPORT void JNICALL
@@ -52,6 +57,7 @@ Java_imt_tangodepthmap_TangoJNINative_onGlSurfaceCreated(
 JNIEXPORT void JNICALL
 Java_imt_tangodepthmap_TangoJNINative_onGlSurfaceChanged(
         JNIEnv *, jobject, jint width, jint height) {
+
     app.OnSurfaceChanged(width, height);
 }
 

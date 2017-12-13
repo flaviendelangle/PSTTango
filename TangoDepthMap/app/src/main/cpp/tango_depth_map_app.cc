@@ -78,6 +78,7 @@ namespace tango_depth_map {
     void SynchronizationApplication::OnCreate(JNIEnv *env, jobject activity, std::string path) {
         // Check the installed version of the TangoCore.  If it is too old, then
         // it will not support the most up to date features.
+        _path = path;
         int version;
         TangoErrorType err = TangoSupport_getTangoVersion(env, activity, &version);
         if (err != TANGO_SUCCESS || version < kTangoCoreMinimumVersion) {
@@ -343,7 +344,7 @@ namespace tango_depth_map {
     }
 
     void SynchronizationApplication::SetRecordingMode(bool isRecording){
-        depth_image_.SetRecordingMode(isRecording);
+        depth_image_.SetRecordingMode(isRecording, _path);
     }
 
     void SynchronizationApplication::OnDisplayChanged(int display_rotation,

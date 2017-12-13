@@ -16,6 +16,8 @@
 
 #include "tango-gl/conversions.h"
 #include "tango-gl/camera.h"
+#include <fstream>
+#include <iostream>
 
 #include "tango_depth_map/depth_image.h"
 
@@ -259,14 +261,19 @@ namespace tango_depth_map {
         cv::Mat depthmap(depth_image_height, depth_image_width, CV_8UC1, grayscale_display_buffer_.data());
 
         if(mIsRecording){
-            // cv::rectangle(depthmap, cv::Rect(500, 500, 100, 100), 255, 10);
-            cv::imwrite("/DCIM/Camera/Camera/test.jpg", depthmap);
-            /*if (_recorder == nullptr) {
-                _recorder = new cv::VideoWriter();
-                //_recorder->open("/DCIM/Camera/Camera", 0, 30, cv::Size(depth_image_width, depth_image_height), false);
+            std::ofstream file;
 
-            }*/
+            file.open((recPath + "/test.txt").c_str());
+            __android_log_print(ANDROID_LOG_ERROR, "TRACKERS", "%s", (recPath + "/test.txt").c_str());
+            if (!file.is_open()){
+                LOGE("NOT OPEN");
+            }
+            else { LOGE("OPEN"); file << "OH MY GOD"; }
+            file.close();
+
+            //cv::imwrite(recPath + "/test.jpg", depthmap);
         }
+        //OPENCV HERE
 
 
         this->CreateOrBindCPUTexture();

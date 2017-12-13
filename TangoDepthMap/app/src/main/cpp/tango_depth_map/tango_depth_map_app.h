@@ -154,12 +154,12 @@ namespace tango_depth_map {
         // writing of the point cloud data.
         TangoSupport_PointCloudManager *point_cloud_manager_;
 
-        //bool gpu_upsample_;
-
         bool is_service_connected_;
         bool is_gl_initialized_;
 
         TangoSupport_Rotation color_camera_to_display_rotation_;
+
+        std::string _path;
 
 
         //COLOR

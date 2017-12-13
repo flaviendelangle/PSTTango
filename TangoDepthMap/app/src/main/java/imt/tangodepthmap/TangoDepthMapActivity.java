@@ -158,7 +158,7 @@ public class TangoDepthMapActivity extends AppCompatActivity {
         mGLView.setEGLContextClientVersion(2);
         mGLView.setRenderer(new TangoDepthMapRenderer(this));
 
-        File truc =  getExternalFilesDir(Environment.DIRECTORY_MOVIES);
+        File truc =  getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
 
         mPath = truc.getAbsolutePath();
 
