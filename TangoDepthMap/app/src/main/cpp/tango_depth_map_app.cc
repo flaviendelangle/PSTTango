@@ -25,6 +25,21 @@ namespace {
 
 namespace tango_depth_map {
 
+    //COLOR
+    void OnFrameAvailableRouter(void* context, TangoCameraId,
+                                const TangoImageBuffer* buffer) {
+        SynchronizationApplication *app =
+                static_cast<SynchronizationApplication *>(context);
+        app->OnFrameAvailable(buffer);
+    }
+
+    void SynchronizationApplication::OnFrameAvailable(const TangoImageBuffer* buffer) {
+
+        //VOIR HELLO VIDEO APP POUR AVOIR LE VECTEUR UINT8 COULEUR
+    }
+    //COLOR
+
+
 // This function will route callbacks to our application object via the context
 // parameter.
 // @param context Will be a pointer to a SynchronizationApplication instance  on
@@ -191,6 +206,16 @@ namespace tango_depth_map {
             std::exit(EXIT_SUCCESS);
         }
 
+        ret = TangoService_connectOnFrameAvailable(TANGO_CAMERA_COLOR, this,
+                                                   OnFrameAvailableRouter);
+        if (ret != TANGO_SUCCESS) {
+            LOGE(
+                    "HelloVideoApp::OnTangoServiceConnected,"
+                            "Error connecting color frame %d",
+                    ret);
+            std::exit(EXIT_SUCCESS);
+        }
+
         // Connect color camera texture. The callback is ignored because the
         // color camera is polled.
         ret = TangoService_connectOnTextureAvailable(TANGO_CAMERA_COLOR, nullptr,
@@ -302,6 +327,7 @@ namespace tango_depth_map {
         glm::mat4 color_image_t1_T_depth_image_t0 =
                 util::GetMatrixFromPose(&pose_color_image_t1_T_depth_image_t0);
 
+
         /*if (gpu_upsample_) {
             depth_image_.RenderDepthToTexture(color_image_t1_T_depth_image_t0,
                                               pointcloud_buffer, new_points);
@@ -309,6 +335,7 @@ namespace tango_depth_map {
             depth_image_.UpdateAndUpsampleDepth(color_image_t1_T_depth_image_t0,
                                                 pointcloud_buffer);
         //}
+
         main_scene_.Render(color_image_.GetTextureId(), depth_image_.GetTextureId(),
                            color_camera_to_display_rotation_);
     }
@@ -319,6 +346,10 @@ namespace tango_depth_map {
 
     void SynchronizationApplication::SetRenderingDistance(int renderingDistance) {
         depth_image_.SetRenderingDistance(renderingDistance);
+    }
+
+    void SynchronizationApplication::SetRecordingMode(bool isRecording){
+        depth_image_.SetRecordingMode(isRecording);
     }
 
     //void SynchronizationApplication::SetGPUUpsample(bool on) { gpu_upsample_ = on; }

@@ -33,12 +33,22 @@
         android:indeterminate="false" />
 
     <CheckBox
-        android:id="@+id/depthmap_checkbox"
+    android:id="@+id/depthmap_checkbox"
+    android:layout_width="150dp"
+    android:layout_height="wrap_content"
+    android:text="Depth map"
+    android:layout_alignParentTop="true"
+    android:layout_alignParentEnd="true"
+    android:checked="false"
+    android:layout_margin="2dp" />
+
+    <CheckBox
+        android:id="@+id/record_checkbox"
         android:layout_width="150dp"
         android:layout_height="wrap_content"
-        android:text="Depth map"
+        android:text="Record"
         android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
+        android:layout_alignParentStart="true"
         android:checked="false"
         android:layout_margin="2dp" />
 

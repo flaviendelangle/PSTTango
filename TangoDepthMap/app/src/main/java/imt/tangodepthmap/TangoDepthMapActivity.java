@@ -31,8 +31,8 @@ public class TangoDepthMapActivity extends AppCompatActivity {
 
     private SeekBar mDepthOverlaySeekbar;
     private CheckBox mDepthmapCheckbox;
+    private CheckBox mRecordCheckbox;
     //private CheckBox mGPUUpsampleCheckbox;
-
 
     // Tango Service connection.
     ServiceConnection mTangoServiceConnection = new ServiceConnection() {
@@ -67,6 +67,7 @@ public class TangoDepthMapActivity extends AppCompatActivity {
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress,
                                       boolean fromUser) {
+            //Sets minimum value to 500cm or 0.5m
             TangoJNINative.setRenderingDistanceValue(progress + 500);
         }
 
@@ -83,18 +84,34 @@ public class TangoDepthMapActivity extends AppCompatActivity {
         @Override
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
             if (buttonView == mDepthmapCheckbox) {
+                //If the checkbox is checked
                 if (isChecked) {
-          /*float progress = mDepthOverlaySeekbar.getProgress();
-          float max = mDepthOverlaySeekbar.getMax();
-          TangoJNINative.setDepthAlphaValue(progress / max);*/
 
-                    //DISPLAY DEPTH MAP AND HIDE COLOR IMAGE
+                    //Display the depth image and the depth cursor, and hide the color image
                     TangoJNINative.setDepthAlphaValue(1.0f);
                     mDepthOverlaySeekbar.setVisibility(View.VISIBLE);
                 } else {
-                    //DISPLAY COLOR IMAGE AND HIDE DEPTH MAP
+                    //Display the color image and hide the depth image and the depth cursor
                     TangoJNINative.setDepthAlphaValue(0.0f);
                     mDepthOverlaySeekbar.setVisibility(View.GONE);
+                }
+            }
+        }
+    }
+
+    private class RecordCheckboxListener implements CheckBox.OnCheckedChangeListener {
+        @Override
+        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+            if (buttonView == mRecordCheckbox) {
+                //If the checkbox is checked
+                if (isChecked) {
+
+                    TangoJNINative.setRecordingMode(true);
+
+                } else {
+
+                    TangoJNINative.setRecordingMode(false);
+
                 }
             }
         }
@@ -148,6 +165,11 @@ public class TangoDepthMapActivity extends AppCompatActivity {
 
         mDepthmapCheckbox = (CheckBox) findViewById(R.id.depthmap_checkbox);
         mDepthmapCheckbox.setOnCheckedChangeListener(new DepthmapCheckboxListener());
+        mDepthmapCheckbox.setChecked(false);
+
+        mRecordCheckbox = (CheckBox) findViewById(R.id.record_checkbox);
+        mRecordCheckbox.setOnCheckedChangeListener(new RecordCheckboxListener());
+        mRecordCheckbox.setChecked(false);
 
     /*mGPUUpsampleCheckbox = (CheckBox) findViewById(R.id.gpu_upsample_checkbox);
     mGPUUpsampleCheckbox.setOnCheckedChangeListener(new GPUUpsampleListener());*/

@@ -90,6 +90,8 @@ namespace tango_depth_map {
 
         void SetRenderingDistance(int renderingDistance);
 
+        void SetRecordingMode(bool isRecording);
+
         // Set whether to use GPU or CPU upsampling
         //void SetGPUUpsample(bool on);
 
@@ -110,6 +112,8 @@ namespace tango_depth_map {
         // @param point_cloud The point cloud returned by the service.
         //
         void OnPointCloudAvailable(const TangoPointCloud *point_cloud);
+
+        void OnFrameAvailable(const TangoImageBuffer* buffer);
 
     private:
         // Setup the configuration file for the Tango Service. .
@@ -156,6 +160,21 @@ namespace tango_depth_map {
         bool is_gl_initialized_;
 
         TangoSupport_Rotation color_camera_to_display_rotation_;
+
+
+        //COLOR
+        std::vector<uint8_t> yuv_buffer_;
+        std::vector<uint8_t> yuv_temp_buffer_;
+        std::vector<GLubyte> rgb_buffer_;
+
+        std::mutex yuv_buffer_mutex_;
+
+        size_t yuv_width_;
+        size_t yuv_height_;
+        size_t yuv_size_;
+        size_t uv_buffer_offset_;
+        //COLOR
+
     };
 }  // namespace tango_depth_map
 

@@ -73,6 +73,12 @@ Java_imt_tangodepthmap_TangoJNINative_setRenderingDistanceValue(
     return app.SetRenderingDistance(renderingDistance);
 }
 
+JNIEXPORT void JNICALL
+Java_imt_tangodepthmap_TangoJNINative_setRecordingMode(
+        JNIEnv *, jobject ,jboolean isRecording) {
+    return app.SetRecordingMode(isRecording);
+}
+
 /*JNIEXPORT void JNICALL
 Java_imt_tangodepthmap_TangoJNINative_setGPUUpsample(
     JNIEnv*, jobject, jboolean on) {

@@ -23,6 +23,10 @@
 #include <mutex>
 #include <vector>
 
+#include "opencv2/core/core.hpp"
+#include "opencv2/imgproc/imgproc.hpp"
+#include "opencv2/highgui/highgui.hpp"
+
 namespace tango_depth_map {
 
 // DepthImage is a class which projects point cloud on to a color camera's
@@ -78,6 +82,8 @@ namespace tango_depth_map {
 
         void SetRenderingDistance(int renderingDistance) { mRenderingDistance = renderingDistance; }
 
+        void SetRecordingMode(bool isRecording) { mIsRecording = isRecording; }
+
     private:
         // Initialize the OpenGL structures needed to render depth image to texture.
         // Returns true if the texture was created and false if an existing texture
@@ -113,6 +119,8 @@ namespace tango_depth_map {
         static const int kMaxDepthDistance = 5000;
 
         int mRenderingDistance;
+
+        bool mIsRecording;
 
         // The meter to millimeter conversion.
         static const int kMeterToMillimeter = 1000;
@@ -151,6 +159,7 @@ namespace tango_depth_map {
         GLuint vertex_buffer_handle_;
         GLuint vertices_handle_;
         GLuint mvp_handle_;
+
     };
 }  // namespace tango_depth_map
 

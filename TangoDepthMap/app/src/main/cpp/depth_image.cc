@@ -17,10 +17,6 @@
 #include "tango-gl/conversions.h"
 #include "tango-gl/camera.h"
 
-#include "opencv2/core/core.hpp"
-#include "opencv2/imgproc/imgproc.hpp"
-#include "opencv2/highgui/highgui.hpp"
-
 #include "tango_depth_map/depth_image.h"
 
 namespace {
@@ -63,7 +59,8 @@ namespace tango_depth_map {
               vertex_buffer_handle_(0),
               vertices_handle_(0),
               mvp_handle_(0),
-              mRenderingDistance (1000) {}
+              mRenderingDistance (1000),
+              mIsRecording(false) {}
 
     DepthImage::~DepthImage() {}
 
@@ -206,6 +203,10 @@ namespace tango_depth_map {
     void DepthImage::UpdateAndUpsampleDepth(
             const glm::mat4 &color_t1_T_depth_t0,
             const TangoPointCloud *render_point_cloud_buffer) {
+
+
+
+
         int depth_image_width = rgb_camera_intrinsics_.width;
         int depth_image_height = rgb_camera_intrinsics_.height;
         int depth_image_size = depth_image_width * depth_image_height;
@@ -255,7 +256,18 @@ namespace tango_depth_map {
         }
 
         //OPENCV HERE
-        cv::Mat depthmap(depth_image_height, depth_image_width, CV_8UC1, &grayscale_display_buffer_);
+        cv::Mat depthmap(depth_image_height, depth_image_width, CV_8UC1, grayscale_display_buffer_.data());
+
+        if(mIsRecording){
+            // cv::rectangle(depthmap, cv::Rect(500, 500, 100, 100), 255, 10);
+            cv::imwrite("/DCIM/Camera/Camera/test.jpg", depthmap);
+            /*if (_recorder == nullptr) {
+                _recorder = new cv::VideoWriter();
+                //_recorder->open("/DCIM/Camera/Camera", 0, 30, cv::Size(depth_image_width, depth_image_height), false);
+
+            }*/
+        }
+
 
         this->CreateOrBindCPUTexture();
         glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, depth_image_width, depth_image_height,
