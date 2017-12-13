@@ -18,6 +18,8 @@
 
 #include <tango_depth_map/tango_depth_map_app.h>
 
+bool test = true;
+
 namespace {
 // The minimum Tango Core version required from this application.
     constexpr int kTangoCoreMinimumVersion = 9377;
@@ -35,7 +37,17 @@ namespace tango_depth_map {
 
     void SynchronizationApplication::OnFrameAvailable(const TangoImageBuffer* buffer) {
 
-        //VOIR HELLO VIDEO APP POUR AVOIR LE VECTEUR UINT8 COULEUR
+        //my_color_image_.UpdateColor(buffer);
+
+        if (!test) {
+
+            //Format NV21 : 4:2:0 -> Luma in 1/1 image + Chroma in 1/2 image
+            cv::Mat _yuv(buffer->height + buffer->height/2, buffer->width, CV_8UC1, buffer->data);
+            cv::Mat _bgr(buffer->height, buffer->width, CV_8UC3);
+            cv::cvtColor(_yuv, _bgr, CV_YUV2BGR_NV21);
+            cv::imwrite(_path + "/test.jpg", _bgr);
+            test = false;
+        }
     }
     //COLOR
 
@@ -60,6 +72,7 @@ namespace tango_depth_map {
 
     SynchronizationApplication::SynchronizationApplication()
             : color_image_(),
+              //my_color_image_(),
               depth_image_(),
               main_scene_(),
               is_service_connected_(false),
@@ -115,7 +128,6 @@ namespace tango_depth_map {
 
     void SynchronizationApplication::TangoSetupConfig() {
         SetDepthAlphaValue(0.0);
-        //SetGPUUpsample(false);
 
         if (tango_config_ != nullptr) {
             return;
@@ -211,7 +223,7 @@ namespace tango_depth_map {
                                                    OnFrameAvailableRouter);
         if (ret != TANGO_SUCCESS) {
             LOGE(
-                    "HelloVideoApp::OnTangoServiceConnected,"
+                    "SynchronizationApplication: OnTangoServiceConnected,"
                             "Error connecting color frame %d",
                     ret);
             std::exit(EXIT_SUCCESS);
@@ -267,6 +279,7 @@ namespace tango_depth_map {
     void SynchronizationApplication::OnSurfaceCreated() {
         depth_image_.InitializeGL();
         color_image_.InitializeGL();
+        //my_color_image_.InitializeGL();
         main_scene_.InitializeGL();
         is_gl_initialized_ = true;
     }

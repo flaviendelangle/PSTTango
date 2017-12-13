@@ -23,6 +23,7 @@
 #include <tango_client_api.h>
 #include <tango_support.h>
 #include <tango_depth_map/color_image.h>
+#include <tango_depth_map/my_color_image.h>
 #include <tango_depth_map/depth_image.h>
 #include <tango_depth_map/scene.h>
 #include <tango_depth_map/util.h>
@@ -139,6 +140,8 @@ namespace tango_depth_map {
         // RGB image
         ColorImage color_image_;
 
+        MyColorImage my_color_image_;
+
         // Depth image created by projecting Point Cloud onto RGB image plane.
         DepthImage depth_image_;
 
@@ -160,21 +163,6 @@ namespace tango_depth_map {
         TangoSupport_Rotation color_camera_to_display_rotation_;
 
         std::string _path;
-
-
-        //COLOR
-        std::vector<uint8_t> yuv_buffer_;
-        std::vector<uint8_t> yuv_temp_buffer_;
-        std::vector<GLubyte> rgb_buffer_;
-
-        std::mutex yuv_buffer_mutex_;
-
-        size_t yuv_width_;
-        size_t yuv_height_;
-        size_t yuv_size_;
-        size_t uv_buffer_offset_;
-        //COLOR
-
     };
 }  // namespace tango_depth_map
 
