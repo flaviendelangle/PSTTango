@@ -27,8 +27,8 @@ extern "C" {
 #endif
 JNIEXPORT void JNICALL
 Java_imt_tangodepthmap_TangoJNINative_onCreate(
-        JNIEnv *env, jobject, jobject activity) {
-    app.OnCreate(env, activity);
+        JNIEnv *env, jobject, jobject activity, jstring path) {
+    app.OnCreate(env, activity, path);
 }
 
 JNIEXPORT void JNICALL

@@ -60,7 +60,7 @@ namespace tango_depth_map {
         //
         // @param env, java environment parameter OnCreate is being called.
         // @param caller_activity, caller of this function.
-        void OnCreate(JNIEnv *env, jobject caller_activity);
+        void OnCreate(JNIEnv *env, jobject caller_activity, std::string path);
 
         // OnPause() callback is called when this Android application's
         // OnCreate function is called from UI thread. In our application,

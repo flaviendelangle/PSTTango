@@ -39,7 +39,7 @@ public class TangoJNINative {
      *
      * @param callerActivity the caller activity of this function.
      */
-    public static native void onCreate(Activity callerActivity);
+    public static native void onCreate(Activity callerActivity, String path);
 
     /**
      * Called when the Tango service is connected successfully.

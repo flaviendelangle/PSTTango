@@ -1,5 +1,6 @@
 package imt.tangodepthmap;
 
+import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 
 import android.content.ComponentName;
@@ -18,6 +19,8 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.SeekBar;
 
+import java.io.File;
+
 public class TangoDepthMapActivity extends AppCompatActivity {
     private static final String TAG = TangoDepthMapActivity.class.getSimpleName();
 
@@ -32,7 +35,8 @@ public class TangoDepthMapActivity extends AppCompatActivity {
     private SeekBar mDepthOverlaySeekbar;
     private CheckBox mDepthmapCheckbox;
     private CheckBox mRecordCheckbox;
-    //private CheckBox mGPUUpsampleCheckbox;
+
+    private String mPath;
 
     // Tango Service connection.
     ServiceConnection mTangoServiceConnection = new ServiceConnection() {
@@ -46,22 +50,6 @@ public class TangoDepthMapActivity extends AppCompatActivity {
             // in the event that Tango itself crashes/gets upgraded while running.
         }
     };
-
-    /*private class DepthOverlaySeekbarListener implements SeekBar.OnSeekBarChangeListener {
-        @Override
-        public void onProgressChanged(SeekBar seekBar, int progress,
-                                      boolean fromUser) {
-            TangoJNINative.setDepthAlphaValue((float) progress / (float) seekBar.getMax());
-        }
-
-        @Override
-        public void onStartTrackingTouch(SeekBar seekBar) {
-        }
-
-        @Override
-        public void onStopTrackingTouch(SeekBar seekBar) {
-        }
-    }*/
 
     private class DepthOverlaySeekbarListener implements SeekBar.OnSeekBarChangeListener {
         @Override
@@ -117,14 +105,6 @@ public class TangoDepthMapActivity extends AppCompatActivity {
         }
     }
 
-    //USE GPU UPSAMPLING
-  /*private class GPUUpsampleListener implements CheckBox.OnCheckedChangeListener {
-    @Override
-    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-      TangoJNINative.setGPUUpsample(isChecked);
-    }
-  }*/
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -171,9 +151,6 @@ public class TangoDepthMapActivity extends AppCompatActivity {
         mRecordCheckbox.setOnCheckedChangeListener(new RecordCheckboxListener());
         mRecordCheckbox.setChecked(false);
 
-    /*mGPUUpsampleCheckbox = (CheckBox) findViewById(R.id.gpu_upsample_checkbox);
-    mGPUUpsampleCheckbox.setOnCheckedChangeListener(new GPUUpsampleListener());*/
-
         // OpenGL view where all of the graphics are drawn
         mGLView = (GLSurfaceView) findViewById(R.id.surfaceview);
 
@@ -181,7 +158,11 @@ public class TangoDepthMapActivity extends AppCompatActivity {
         mGLView.setEGLContextClientVersion(2);
         mGLView.setRenderer(new TangoDepthMapRenderer(this));
 
-        TangoJNINative.onCreate(this);
+        File truc =  getExternalFilesDir(Environment.DIRECTORY_MOVIES);
+
+        mPath = truc.getAbsolutePath();
+
+        TangoJNINative.onCreate(this, mPath);
     }
 
     @Override

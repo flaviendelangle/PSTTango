@@ -62,7 +62,6 @@ namespace tango_depth_map {
             : color_image_(),
               depth_image_(),
               main_scene_(),
-              //gpu_upsample_(false),
               is_service_connected_(false),
               is_gl_initialized_(false),
               color_camera_to_display_rotation_(
@@ -76,7 +75,7 @@ namespace tango_depth_map {
         point_cloud_manager_ = nullptr;
     }
 
-    void SynchronizationApplication::OnCreate(JNIEnv *env, jobject activity) {
+    void SynchronizationApplication::OnCreate(JNIEnv *env, jobject activity, std::string path) {
         // Check the installed version of the TangoCore.  If it is too old, then
         // it will not support the most up to date features.
         int version;
@@ -92,6 +91,7 @@ namespace tango_depth_map {
     void SynchronizationApplication::OnTangoServiceConnected(JNIEnv *env,
                                                              jobject binder) {
         TangoErrorType ret = TangoService_setBinder(env, binder);
+
         if (ret != TANGO_SUCCESS) {
             LOGE(
                     "SynchronizationApplication: Failed to set Tango service binder with"
@@ -327,14 +327,8 @@ namespace tango_depth_map {
         glm::mat4 color_image_t1_T_depth_image_t0 =
                 util::GetMatrixFromPose(&pose_color_image_t1_T_depth_image_t0);
 
-
-        /*if (gpu_upsample_) {
-            depth_image_.RenderDepthToTexture(color_image_t1_T_depth_image_t0,
-                                              pointcloud_buffer, new_points);
-        } else {*/
-            depth_image_.UpdateAndUpsampleDepth(color_image_t1_T_depth_image_t0,
-                                                pointcloud_buffer);
-        //}
+        depth_image_.UpdateAndUpsampleDepth(color_image_t1_T_depth_image_t0,
+                                            pointcloud_buffer);
 
         main_scene_.Render(color_image_.GetTextureId(), depth_image_.GetTextureId(),
                            color_camera_to_display_rotation_);
@@ -351,8 +345,6 @@ namespace tango_depth_map {
     void SynchronizationApplication::SetRecordingMode(bool isRecording){
         depth_image_.SetRecordingMode(isRecording);
     }
-
-    //void SynchronizationApplication::SetGPUUpsample(bool on) { gpu_upsample_ = on; }
 
     void SynchronizationApplication::OnDisplayChanged(int display_rotation,
                                                       int color_camera_rotation) {
