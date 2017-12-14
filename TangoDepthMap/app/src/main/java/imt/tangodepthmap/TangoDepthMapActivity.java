@@ -107,6 +107,7 @@ public class TangoDepthMapActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.i(TAG, TAG);
         super.onCreate(savedInstanceState);
 
         Display display = getWindowManager().getDefaultDisplay();
@@ -158,8 +159,11 @@ public class TangoDepthMapActivity extends AppCompatActivity {
         mGLView.setEGLContextClientVersion(2);
         mGLView.setRenderer(new TangoDepthMapRenderer(this));
 
-        File truc =  getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
+        File folder =  getExternalFilesDir(Storage.FOLDER_NAME);
+        String path = Storage.getFilePath(folder);
+        Log.i(TAG, path);
 
+        File truc =  getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
         mPath = truc.getAbsolutePath();
 
         TangoJNINative.onCreate(this, mPath);
