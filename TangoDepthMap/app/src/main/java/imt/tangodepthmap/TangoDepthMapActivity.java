@@ -94,7 +94,7 @@ public class TangoDepthMapActivity extends AppCompatActivity {
                 //If the checkbox is checked
                 if (isChecked) {
 
-                    File folder =  getExternalFilesDir(Storage.FOLDER_NAME);
+                    File folder =  getExternalFilesDir(Storage.ROOT_DIRECTORY_NAME);
                     String path = Storage.getFilePath(folder);
                     Log.i(TAG, path);
 

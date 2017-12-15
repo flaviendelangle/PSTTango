@@ -15,23 +15,30 @@ import java.util.regex.Pattern;
 
 public class Storage
 {
-    public static final String FOLDER_NAME = Environment.DIRECTORY_DOWNLOADS;
 
-    private static final String FILE_NAME_ROOT = "Recording_";
+    public static final String ROOT_DIRECTORY_NAME = Environment.DIRECTORY_MOVIES;
 
-    private static final String FILE_NAME_REGEXP =  "^" + Storage.FILE_NAME_ROOT +
+    public static final String PROJECT_DIRECTORY_NAME = "DepthMap_Recordings";
+
+    private static final String ELEMENT_DIRECTORY_NAME_PREFIX = "Recording_";
+
+    private static final String ELEMENT_DIRECTORY_REGEXP =  "^" + Storage.ELEMENT_DIRECTORY_NAME_PREFIX +
                                                     "([0-9]+)" + "$";
 
-    private static final Pattern FILE_NAME_REGEXP_PATTERN =  Pattern.compile(Storage.FILE_NAME_REGEXP);
+    private static final Pattern ELEMENT_DIRECTORY_REGEXP_PATTERN =  Pattern.compile(Storage.ELEMENT_DIRECTORY_REGEXP);
 
-    public static String getFilePath(File folder) {
-        String folderPath = Storage.getFolderPath(folder);
-        String file = Storage.getFile(folderPath);
-        return folderPath + "/" + file;
+    public static String getFilePath(File rootFolder) {
+        String folderPath = Storage.getFolderPath(rootFolder);
+        return Storage.getFile(folderPath);
     }
 
-    private static String getFolderPath(File folder) {
-        return folder.getAbsolutePath();
+    private static String getFolderPath(File rootFolder) {
+        String projectPath = rootFolder.getAbsolutePath() + "/" + Storage.PROJECT_DIRECTORY_NAME + "/";
+        File projectFolder = new File(projectPath);
+        if(!projectFolder.exists()) {
+            Boolean success = projectFolder.mkdirs();
+        }
+        return projectFolder.getAbsolutePath() + "/";
     }
 
     private static String getFile(String folderPath) {
@@ -40,8 +47,8 @@ public class Storage
         for (File file : files) {
             if (file.isDirectory()) {
                 String name = file.getName();
-                if (name.matches(Storage.FILE_NAME_REGEXP)) {
-                    Matcher m = Storage.FILE_NAME_REGEXP_PATTERN.matcher(name);
+                if (name.matches(Storage.ELEMENT_DIRECTORY_REGEXP)) {
+                    Matcher m = Storage.ELEMENT_DIRECTORY_REGEXP_PATTERN.matcher(name);
                     if (m.find()) {
                         Integer fileNumber = Integer.parseInt(m.group(1));
                         if(max < fileNumber) {
@@ -52,7 +59,9 @@ public class Storage
             }
         }
         max++;
-        return Storage.FILE_NAME_ROOT + max.toString() + "/";
+        String elementPath = folderPath + Storage.ELEMENT_DIRECTORY_NAME_PREFIX + max.toString() + "/";
+        Boolean success = new File(elementPath).mkdirs();
+        return elementPath;
     }
 
 }
