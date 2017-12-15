@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
+#include <opencv2/imgproc.hpp>
 #include "tango_depth_map/color_image.h"
 
 namespace tango_depth_map {
 
-    ColorImage::ColorImage() : texture_id_(0) {}
+    ColorImage::ColorImage() :
+            texture_id_(0) {}
 
     void ColorImage::InitializeGL() {
         glGenTextures(1, &texture_id_);
@@ -26,6 +28,16 @@ namespace tango_depth_map {
         glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         glBindTexture(GL_TEXTURE_EXTERNAL_OES, 0);
+    }
+
+    void ColorImage::UpdateColorImage(TangoImageBuffer *imageBuffer){
+
+        if(colorImage.empty()) colorImage.create(imageBuffer->height, imageBuffer->width, CV_8UC3);
+
+        //Format NV21 : 4:2:0 -> Luma in 1/1 image + Chroma in 1/2 image
+        cv::Mat _yuv(imageBuffer->height + imageBuffer->height / 2, imageBuffer->width, CV_8UC1, imageBuffer->data);
+        colorImage.setTo(cv::Scalar(0, 0, 0));
+        cv::cvtColor(_yuv, colorImage, CV_YUV2BGR_NV21);
     }
 
     ColorImage::~ColorImage() {}

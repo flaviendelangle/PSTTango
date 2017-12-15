@@ -157,8 +157,8 @@ namespace tango_depth_map {
 
         this->CreateOrBindCPUTexture();
 
-        if (true) { //Display depthmap calculated from rgb camera intrinsecs
-            glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, depth_image_width, depth_image_height,
+        if (false) { //Display depthmap calculated from rgb camera intrinsecs
+            glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, rgb_image_width, rgb_image_height,
                             GL_LUMINANCE, GL_UNSIGNED_BYTE,
                             full_depth_grayscale_buffer_.data());
             tango_gl::util::CheckGlError("DepthImage glTexSubImage2D");

@@ -127,11 +127,6 @@ namespace tango_depth_map {
         // start Depth Sensing callbacks.
         void TangoConnect();
 
-        // Queries and sets the camera transforms between different sensors of
-        // Project Tango Device that are required to project Point cloud onto
-        // Image plane.
-        void TangoSetIntrinsics();
-
         // RGB image
         ColorImage color_image_;
 
@@ -159,6 +154,8 @@ namespace tango_depth_map {
         // The point_cloud_manager allows for thread safe reading and
         // writing of the point cloud data.
         TangoSupport_PointCloudManager *point_cloud_manager_;
+
+        TangoSupport_ImageBufferManager *image_buffer_manager_;
 
         bool is_service_connected_;
         bool is_gl_initialized_;

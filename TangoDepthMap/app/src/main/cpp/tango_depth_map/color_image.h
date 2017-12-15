@@ -30,12 +30,14 @@ namespace tango_depth_map {
 
         GLuint GetTextureId() const { return texture_id_; }
 
-        void InitializeGL();
+        void UpdateColorImage(TangoImageBuffer *imageBuffer);
 
-        cv::Mat colorImage;
+        void InitializeGL();
 
     private:
         GLuint texture_id_;
+
+        cv::Mat colorImage;
 
     };
 }  // namespace tango_depth_map

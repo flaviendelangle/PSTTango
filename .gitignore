@@ -99,4 +99,4 @@ crashlytics-build.properties
 
 
 # User paths file
-**/userPaths.mk
+userPaths.mk

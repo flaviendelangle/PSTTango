@@ -51,12 +51,7 @@ namespace tango_depth_map {
 
     void SynchronizationApplication::OnFrameAvailable(
             const TangoImageBuffer *buffer) {
-
-        //Format NV21 : 4:2:0 -> Luma in 1/1 image + Chroma in 1/2 image
-        /*cv::Mat _yuv(buffer->height + buffer->height / 2, buffer->width, CV_8UC1, buffer->data);
-        color_image_.colorImage.setTo(cv::Scalar(0, 0, 0));
-        cv::resize(color_image_.colorImage, color_image_.colorImage, cv::Size(buffer->width,buffer->height));
-        cv::cvtColor(_yuv, color_image_.colorImage, CV_YUV2BGR_NV21);*/
+        TangoSupport_updateImageBuffer(image_buffer_manager_, buffer);
     }
 
     void SynchronizationApplication::OnPointCloudAvailable(
@@ -80,6 +75,9 @@ namespace tango_depth_map {
         }
         TangoSupport_freePointCloudManager(point_cloud_manager_);
         point_cloud_manager_ = nullptr;
+
+        TangoSupport_freeImageBufferManager(image_buffer_manager_);
+        image_buffer_manager_ = nullptr;
     }
 
     void SynchronizationApplication::OnCreate(JNIEnv *env, jobject activity) {
@@ -114,7 +112,6 @@ namespace tango_depth_map {
         TangoSetupConfig();
         TangoConnectCallbacks();
         TangoConnect();
-        TangoSetIntrinsics();
 
         is_service_connected_ = true;
     }
@@ -176,9 +173,13 @@ namespace tango_depth_map {
             LOGE("Failed to enable low latency imu integration.");
             std::exit(EXIT_SUCCESS);
         }
+    }
+
+    void SynchronizationApplication::TangoConnectCallbacks() {
 
         // Use the tango_config to set up the PointCloudManager before we connect
         // the callbacks.
+        TangoErrorType err;
         if (point_cloud_manager_ == nullptr) {
             int32_t max_point_cloud_elements;
             err = TangoConfig_getInt32(tango_config_, "max_point_cloud_elements",
@@ -194,43 +195,30 @@ namespace tango_depth_map {
                 std::exit(EXIT_SUCCESS);
             }
         }
-    }
 
-    void SynchronizationApplication::TangoConnectCallbacks() {
-        // We're interested in only one callback for this application. We need to be
-        // notified when we receive depth information in order to support measuring
+        //We need to be notified when we receive depth information in order to support measuring
         // 3D points. For both pose and color camera information, we'll be polling.
         // The render loop will drive the rate at which we need color images and all
         // our poses will be driven by timestamps. As such, we'll use GetPoseAtTime.
-        TangoErrorType ret =
-                TangoService_connectOnPointCloudAvailable(OnPointCloudAvailableRouter);
-        if (ret != TANGO_SUCCESS) {
+
+        err = TangoService_connectOnPointCloudAvailable(OnPointCloudAvailableRouter);
+        if (err != TANGO_SUCCESS) {
             LOGE(
                     "SynchronizationApplication: Failed to connect point cloud callback "
                             "with errorcode: %d",
-                    ret);
-            std::exit(EXIT_SUCCESS);
-        }
-
-        ret = TangoService_connectOnFrameAvailable(TANGO_CAMERA_COLOR, this,
-                                                   OnFrameAvailableRouter);
-        if (ret != TANGO_SUCCESS) {
-            LOGE(
-                    "SynchronizationApplication: OnTangoServiceConnected,"
-                            "Error connecting color frame %d",
-                    ret);
+                    err);
             std::exit(EXIT_SUCCESS);
         }
 
         // Connect color camera texture. The callback is ignored because the
         // color camera is polled.
-        ret = TangoService_connectOnTextureAvailable(TANGO_CAMERA_COLOR, nullptr,
+        err = TangoService_connectOnTextureAvailable(TANGO_CAMERA_COLOR, nullptr,
                                                      nullptr);
-        if (ret != TANGO_SUCCESS) {
+        if (err != TANGO_SUCCESS) {
             LOGE(
                     "SynchronizationApplication: Failed to connect texture callback with "
                             "errorcode: %d",
-                    ret);
+                    err);
             std::exit(EXIT_SUCCESS);
         }
     }
@@ -244,9 +232,7 @@ namespace tango_depth_map {
             LOGE("SynchronizationApplication: Failed to connect to the Tango service.");
             std::exit(EXIT_SUCCESS);
         }
-    }
 
-    void SynchronizationApplication::TangoSetIntrinsics() {
         // Get the intrinsics for the color camera and pass them on to the depth
         // image. We need these to know how to project the point cloud into the color
         // camera frame.
@@ -258,6 +244,27 @@ namespace tango_depth_map {
                     "SynchronizationApplication: Failed to get the intrinsics for the color"
                             "camera.");
             std::exit(EXIT_SUCCESS);
+        }
+
+        err = TangoService_connectOnFrameAvailable(TANGO_CAMERA_COLOR, this,
+                                                   OnFrameAvailableRouter);
+        if (err != TANGO_SUCCESS) {
+            LOGE(
+                    "SynchronizationApplication: OnTangoServiceConnected,"
+                            "Error connecting color frame %d",
+                    err);
+            std::exit(EXIT_SUCCESS);
+        }
+
+        if (image_buffer_manager_ == nullptr) {
+
+            err = TangoSupport_createImageBufferManager(
+                    TANGO_HAL_PIXEL_FORMAT_YCrCb_420_SP, color_camera_intrinsics.width,
+                    color_camera_intrinsics.height, &image_buffer_manager_);
+            if (err != TANGO_SUCCESS) {
+                LOGE("PointToPointApplication: Failed to create image buffer manager");
+                std::exit(EXIT_SUCCESS);
+            }
         }
 
         TangoCameraIntrinsics depth_camera_intrinsics;
@@ -299,6 +306,17 @@ namespace tango_depth_map {
         if (!is_service_connected_ || !is_gl_initialized_) {
             return;
         }
+
+        bool new_data = false;
+        TangoImageBuffer *imageBuffer;
+        if (TangoSupport_getLatestImageBufferAndNewDataFlag(
+                image_buffer_manager_, &imageBuffer, &new_data)!=
+            TANGO_SUCCESS){
+            LOGE("SynchronizationApplication: Failed to get a new image.");
+            return;
+        }
+
+        color_image_.UpdateColorImage(imageBuffer);
 
         double color_timestamp = 0.0;
         double depth_timestamp;
