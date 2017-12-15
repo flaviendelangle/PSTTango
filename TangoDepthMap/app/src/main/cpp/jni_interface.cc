@@ -27,13 +27,9 @@ extern "C" {
 #endif
 JNIEXPORT void JNICALL
 Java_imt_tangodepthmap_TangoJNINative_onCreate(
-        JNIEnv *env, jobject, jobject activity, jstring path) {
+        JNIEnv *env, jobject, jobject activity) {
 
-    const char *pathString = env->GetStringUTFChars(path, JNI_FALSE);
-
-    app.OnCreate(env, activity, std::string(pathString));
-
-    env->ReleaseStringUTFChars(path, pathString);
+    app.OnCreate(env, activity);
 }
 
 JNIEXPORT void JNICALL
@@ -81,15 +77,14 @@ Java_imt_tangodepthmap_TangoJNINative_setRenderingDistanceValue(
 
 JNIEXPORT void JNICALL
 Java_imt_tangodepthmap_TangoJNINative_setRecordingMode(
-        JNIEnv *, jobject ,jboolean isRecording) {
-    return app.SetRecordingMode(isRecording);
-}
+        JNIEnv *env, jobject ,jboolean isRecording, jstring path) {
 
-/*JNIEXPORT void JNICALL
-Java_imt_tangodepthmap_TangoJNINative_setGPUUpsample(
-    JNIEnv*, jobject, jboolean on) {
-  return app.SetGPUUpsample(on);
-}*/
+    const char *pathString = env->GetStringUTFChars(path, JNI_FALSE);
+    std::string cppPath = std::string(pathString);
+    env->ReleaseStringUTFChars(path, pathString);
+
+    return app.SetRecordingMode(isRecording, cppPath);
+}
 
 JNIEXPORT void JNICALL
 Java_imt_tangodepthmap_TangoJNINative_onDisplayChanged(

@@ -17,6 +17,7 @@
 #ifndef TANGODEPTHMAP_COLOR_IMAGE_H_
 #define TANGODEPTHMAP_COLOR_IMAGE_H_
 
+#include <opencv2/core/mat.hpp>
 #include "tango-gl/util.h"
 
 namespace tango_depth_map {
@@ -31,8 +32,11 @@ namespace tango_depth_map {
 
         void InitializeGL();
 
+        cv::Mat colorImage;
+
     private:
         GLuint texture_id_;
+
     };
 }  // namespace tango_depth_map
 

@@ -19,11 +19,11 @@
 
 #include <jni.h>
 #include <vector>
+#include <fstream>
 
 #include <tango_client_api.h>
 #include <tango_support.h>
 #include <tango_depth_map/color_image.h>
-#include <tango_depth_map/my_color_image.h>
 #include <tango_depth_map/depth_image.h>
 #include <tango_depth_map/scene.h>
 #include <tango_depth_map/util.h>
@@ -61,7 +61,7 @@ namespace tango_depth_map {
         //
         // @param env, java environment parameter OnCreate is being called.
         // @param caller_activity, caller of this function.
-        void OnCreate(JNIEnv *env, jobject caller_activity, std::string path);
+        void OnCreate(JNIEnv *env, jobject caller_activity);
 
         // OnPause() callback is called when this Android application's
         // OnCreate function is called from UI thread. In our application,
@@ -86,15 +86,14 @@ namespace tango_depth_map {
         // Main Render loop.
         void OnDrawFrame();
 
+        void RecordManager();
+
         // Set the transparency of Depth Image.
         void SetDepthAlphaValue(float alpha);
 
         void SetRenderingDistance(int renderingDistance);
 
-        void SetRecordingMode(bool isRecording);
-
-        // Set whether to use GPU or CPU upsampling
-        //void SetGPUUpsample(bool on);
+        void SetRecordingMode(bool isRecording, std::string path);
 
         // Callback for display change event, we use this function to detect display
         // orientation change.
@@ -120,10 +119,6 @@ namespace tango_depth_map {
         // Setup the configuration file for the Tango Service. .
         void TangoSetupConfig();
 
-        // Associate the texture generated from an Opengl context to which the color
-        // image will be updated to.
-        bool TangoConnectTexture();
-
         // Sets the callbacks for OnXYZijAvailable
         void TangoConnectCallbacks();
 
@@ -140,10 +135,18 @@ namespace tango_depth_map {
         // RGB image
         ColorImage color_image_;
 
-        MyColorImage my_color_image_;
+        //MyColorImage my_color_image_;
 
         // Depth image created by projecting Point Cloud onto RGB image plane.
         DepthImage depth_image_;
+
+        // Path to the directory where images should be saved
+        std::string _recordingPath;
+
+        std::vector<cv::Mat> _recordingBuffer;
+
+        // Write images to _recordingPath
+        bool _isRecording;
 
         // Main scene which contains all the renderable objects.
         Scene main_scene_;
@@ -161,8 +164,6 @@ namespace tango_depth_map {
         bool is_gl_initialized_;
 
         TangoSupport_Rotation color_camera_to_display_rotation_;
-
-        std::string _path;
     };
 }  // namespace tango_depth_map
 

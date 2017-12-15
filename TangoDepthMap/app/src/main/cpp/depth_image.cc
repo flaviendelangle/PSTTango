@@ -26,15 +26,15 @@ namespace tango_depth_map {
     DepthImage::DepthImage()
             : texture_id_(0),
               cpu_texture_id_(0),
-              depth_map_buffer_(0),
-              grayscale_display_buffer_(0),
+              depth_value_buffer_(0),
+              full_depth_grayscale_buffer_(0),
+              small_depth_grayscale_buffer_(0),
               texture_render_program_(0),
               fbo_handle_(0),
               vertex_buffer_handle_(0),
               vertices_handle_(0),
               mvp_handle_(0),
-              mRenderingDistance (1000),
-              mIsRecording(false) {}
+              mRenderingDistance(1000){}
 
     DepthImage::~DepthImage() {}
 
@@ -81,15 +81,22 @@ namespace tango_depth_map {
             const glm::mat4 &color_t1_T_depth_t0,
             const TangoPointCloud *render_point_cloud_buffer) {
 
-        int depth_image_width = rgb_camera_intrinsics_.width;
-        int depth_image_height = rgb_camera_intrinsics_.height;
-        int depth_image_size = depth_image_width * depth_image_height;
+        int rgb_image_width = rgb_camera_intrinsics_.width;
+        int rgb_image_height = rgb_camera_intrinsics_.height;
+        int rgb_image_size = rgb_image_width * rgb_image_height;
 
-        depth_map_buffer_.resize(depth_image_size);
-        grayscale_display_buffer_.resize(depth_image_size);
-        std::fill(depth_map_buffer_.begin(), depth_map_buffer_.end(), 0);
-        std::fill(grayscale_display_buffer_.begin(), grayscale_display_buffer_.end(),
-                  0);
+        depth_value_buffer_.resize(rgb_image_size);
+        std::fill(depth_value_buffer_.begin(), depth_value_buffer_.end(), 0);
+
+        full_depth_grayscale_buffer_.resize(rgb_image_size);
+        std::fill(full_depth_grayscale_buffer_.begin(), full_depth_grayscale_buffer_.end(), 0);
+
+        int depth_image_width = depth_camera_intrinsics_.width;
+        int depth_image_height = depth_camera_intrinsics_.height;
+        int depth_image_size = depth_image_height * depth_image_width;
+
+        small_depth_grayscale_buffer_.resize(depth_image_size);
+        std::fill(small_depth_grayscale_buffer_.begin(), small_depth_grayscale_buffer_.end(), 0);
 
         int point_cloud_size = render_point_cloud_buffer->num_points;
         for (int i = 0; i < point_cloud_size; ++i) {
@@ -119,39 +126,51 @@ namespace tango_depth_map {
             // image.
             // We can query for depth value in mm from grayscale image buffer by
             // getting a `pixel_value` at (pixel_x,pixel_y) and calculating
-            // pixel_value * (kMaxDepthDistance / USHRT_MAX)
-            float depth_value = color_t1_point.z;
+            // pixel_value * (UCHAR_MAX / distance)
             uint8_t grayscale_value = UCHAR_MAX - (color_t1_point.z * 1000) * UCHAR_MAX / mRenderingDistance;
 
-            UpSampleDepthAroundPoint(grayscale_value, depth_value, pixel_x, pixel_y,
-                                     &grayscale_display_buffer_, &depth_map_buffer_);
+            UpSampleDepthAroundPoint(grayscale_value, color_t1_point.z, pixel_x, pixel_y,
+                                     &full_depth_grayscale_buffer_, &depth_value_buffer_);
+
+            //DEPTHMAP
+            //Same as above but now using depth camera intrinsecs to avoing upsampling
+            int depth_x, depth_y;
+
+            depth_x = static_cast<int>((depth_camera_intrinsics_.fx) *
+                                       (color_t1_point.x / color_t1_point.z) +
+                                       depth_camera_intrinsics_.cx);
+
+            depth_y = static_cast<int>((depth_camera_intrinsics_.fy) *
+                                       (color_t1_point.y / color_t1_point.z) +
+                                       depth_camera_intrinsics_.cy);
+
+            int pixel_num = depth_x + depth_y * depth_image_width;
+            if (pixel_num > 0 && pixel_num < depth_image_size)
+                small_depth_grayscale_buffer_[pixel_num] = grayscale_value;
+            //DEPTHMAP
         }
 
-        //OPENCV HERE
-        /*cv::Mat depthmap(depth_image_height, depth_image_width, CV_8UC1, grayscale_display_buffer_.data());
-
-        if(mIsRecording){
-            std::ofstream file;
-
-            file.open((recPath + "/test.txt").c_str());
-            __android_log_print(ANDROID_LOG_ERROR, "TRACKERS", "%s", (recPath + "/test.txt").c_str());
-            if (!file.is_open()){
-                LOGE("NOT OPEN");
-            }
-            else { LOGE("OPEN"); file << "OH MY GOD"; }
-            file.close();
-
-            //cv::imwrite(recPath + "/test.jpg", depthmap);
-        }*/
-        //OPENCV HERE
-
+        /*int start = clock();
+        int end = clock();
+        LOGE("Execution time");
+        __android_log_print(ANDROID_LOG_INFO, "Zbeul", "%f", (end-start)/double(CLOCKS_PER_SEC)*1000);*/
 
         this->CreateOrBindCPUTexture();
-        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, depth_image_width, depth_image_height,
-                        GL_LUMINANCE, GL_UNSIGNED_BYTE,
-                        grayscale_display_buffer_.data());
-        tango_gl::util::CheckGlError("DepthImage glTexSubImage2D");
-        glBindTexture(GL_TEXTURE_2D, 0);
+
+        if (true) { //Display depthmap calculated from rgb camera intrinsecs
+            glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, depth_image_width, depth_image_height,
+                            GL_LUMINANCE, GL_UNSIGNED_BYTE,
+                            full_depth_grayscale_buffer_.data());
+            tango_gl::util::CheckGlError("DepthImage glTexSubImage2D");
+            glBindTexture(GL_TEXTURE_2D, 0);
+
+        } else { //Display depthmap calculated from depth camera intrinsecs
+            glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, depth_image_width, depth_image_height,
+                            GL_LUMINANCE, GL_UNSIGNED_BYTE,
+                            small_depth_grayscale_buffer_.data());
+            tango_gl::util::CheckGlError("DepthImage glTexSubImage2D");
+            glBindTexture(GL_TEXTURE_2D, 0);
+        }
 
         texture_id_ = cpu_texture_id_;
     }

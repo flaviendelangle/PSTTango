@@ -19,7 +19,6 @@ LOCAL_C_INCLUDES := $(PROJECT_ROOT)/Modules/tango_gl/include/ \
 
 LOCAL_SRC_FILES := camera_texture_drawable.cc \
                    color_image.cc \
-                   my_color_image.cc\
                    depth_image.cc \
                    jni_interface.cc \
                    tango_depth_map_app.cc \

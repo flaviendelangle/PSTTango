@@ -39,7 +39,7 @@ public class TangoJNINative {
      *
      * @param callerActivity the caller activity of this function.
      */
-    public static native void onCreate(Activity callerActivity, String path);
+    public static native void onCreate(Activity callerActivity);
 
     /**
      * Called when the Tango service is connected successfully.
@@ -63,7 +63,7 @@ public class TangoJNINative {
 
     public static native void setRenderingDistanceValue(int renderingDistance);
 
-    public static native void setRecordingMode(boolean isRecording);
+    public static native void setRecordingMode(boolean isRecording, String path);
 
     //public static native void setGPUUpsample(boolean on);
 

@@ -94,11 +94,15 @@ public class TangoDepthMapActivity extends AppCompatActivity {
                 //If the checkbox is checked
                 if (isChecked) {
 
-                    TangoJNINative.setRecordingMode(true);
+                    File folder =  getExternalFilesDir(Storage.FOLDER_NAME);
+                    String path = Storage.getFilePath(folder);
+                    Log.i(TAG, path);
+
+                    TangoJNINative.setRecordingMode(true, path);
 
                 } else {
 
-                    TangoJNINative.setRecordingMode(false);
+                    TangoJNINative.setRecordingMode(false, "");
 
                 }
             }
@@ -159,14 +163,10 @@ public class TangoDepthMapActivity extends AppCompatActivity {
         mGLView.setEGLContextClientVersion(2);
         mGLView.setRenderer(new TangoDepthMapRenderer(this));
 
-        File folder =  getExternalFilesDir(Storage.FOLDER_NAME);
-        String path = Storage.getFilePath(folder);
-        Log.i(TAG, path);
+        /*File truc =  getExternalFilesDir(Environment.DIRECTORY_MOVIES);
+        mPath = truc.getAbsolutePath();*/
 
-        File truc =  getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
-        mPath = truc.getAbsolutePath();
-
-        TangoJNINative.onCreate(this, mPath);
+        TangoJNINative.onCreate(this);
     }
 
     @Override

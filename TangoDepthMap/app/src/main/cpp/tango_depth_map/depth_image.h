@@ -60,11 +60,16 @@ namespace tango_depth_map {
         // Set camera's intrinsics.
         // The intrinsics are used to project the pointcloud to depth image and
         // and undistort the image to the right size.
-        void SetCameraIntrinsics(TangoCameraIntrinsics intrinsics) { rgb_camera_intrinsics_ = intrinsics; }
+        void SetCameraIntrinsics(TangoCameraIntrinsics color_intrinsics, TangoCameraIntrinsics depth_intrinsics)
+        { rgb_camera_intrinsics_ = color_intrinsics; depth_camera_intrinsics_ = depth_intrinsics; }
 
         void SetRenderingDistance(int renderingDistance) { mRenderingDistance = renderingDistance; }
 
-        void SetRecordingMode(bool isRecording, std::string path) { mIsRecording = isRecording; recPath = path; }
+        uchar* getFullDepthBuffer() { return full_depth_grayscale_buffer_.data(); }
+        uchar* getSmallDepthBuffer() { return small_depth_grayscale_buffer_.data(); }
+
+        cv::Size getFullDepthSize() { return cv::Size(rgb_camera_intrinsics_.width, rgb_camera_intrinsics_.height); }
+        cv::Size getSmallDepthSize() { return cv::Size(depth_camera_intrinsics_.width, depth_camera_intrinsics_.height); }
 
     private:
 
@@ -93,14 +98,11 @@ namespace tango_depth_map {
                                       std::vector<uint8_t> *grayscale_buffer,
                                       std::vector<float> *depth_map_buffer);
 
+        //Window used for upsampling depth
+        int kWindowSize = 4;
+
+        //Distance interval corresponding to a 255 - 0 interval
         int mRenderingDistance;
-
-        bool mIsRecording;
-
-        std::string recPath;
-
-        // Window size for splatter upsample
-        static const int kWindowSize = 4;
 
         // The depth texture id. This is used for other rendering class to
         // render, in this class, we only write value to this texture via
@@ -111,15 +113,17 @@ namespace tango_depth_map {
         // The backing texture for CPU texture generation.
         GLuint cpu_texture_id_;
 
-        std::vector<float> depth_map_buffer_;
+        std::vector<float> depth_value_buffer_;
 
         // Color map buffer is for the texture render purpose, this value is written
         // to the texture id buffer, and display as GL_LUMINANCE value.
-        std::vector<uint8_t> grayscale_display_buffer_;
+        std::vector<uint8_t> full_depth_grayscale_buffer_;
 
-        // The camera intrinsics of current device. Note that the color camera and
-        // depth camera are the same hardware on the device.
+        std::vector<uint8_t> small_depth_grayscale_buffer_;
+
+        // The camera intrinsics of current device.
         TangoCameraIntrinsics rgb_camera_intrinsics_;
+        TangoCameraIntrinsics depth_camera_intrinsics_;
 
         // OpenGL handles for render to texture
         GLuint texture_render_program_;

@@ -15,15 +15,12 @@ import java.util.regex.Pattern;
 
 public class Storage
 {
-
     public static final String FOLDER_NAME = Environment.DIRECTORY_DOWNLOADS;
 
-    private static final String FILE_NAME_ROOT = "Recording ";
-
-    private static final String FILE_FORMAT = ".mosbi";
+    private static final String FILE_NAME_ROOT = "Recording_";
 
     private static final String FILE_NAME_REGEXP =  "^" + Storage.FILE_NAME_ROOT +
-                                                    "([0-9]+)" + Storage.FILE_FORMAT + "$";
+                                                    "([0-9]+)" + "$";
 
     private static final Pattern FILE_NAME_REGEXP_PATTERN =  Pattern.compile(Storage.FILE_NAME_REGEXP);
 
@@ -40,9 +37,8 @@ public class Storage
     private static String getFile(String folderPath) {
         File[] files = new File(folderPath).listFiles();
         Integer max = 0;
-
         for (File file : files) {
-            if (file.isFile()) {
+            if (file.isDirectory()) {
                 String name = file.getName();
                 if (name.matches(Storage.FILE_NAME_REGEXP)) {
                     Matcher m = Storage.FILE_NAME_REGEXP_PATTERN.matcher(name);
@@ -56,7 +52,7 @@ public class Storage
             }
         }
         max++;
-        return Storage.FILE_NAME_ROOT + max.toString() + Storage.FILE_FORMAT;
+        return Storage.FILE_NAME_ROOT + max.toString() + "/";
     }
 
 }

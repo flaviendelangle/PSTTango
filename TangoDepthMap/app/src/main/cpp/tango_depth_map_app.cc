@@ -15,41 +15,22 @@
  */
 #include <tango-gl/conversions.h>
 #include <tango_support.h>
+#include <chrono>
 
 #include <tango_depth_map/tango_depth_map_app.h>
-
-bool test = true;
+#include <iterator>
 
 namespace {
 // The minimum Tango Core version required from this application.
     constexpr int kTangoCoreMinimumVersion = 9377;
-}  // namespace
-
-namespace tango_depth_map {
 
     //COLOR
-    void OnFrameAvailableRouter(void* context, TangoCameraId,
-                                const TangoImageBuffer* buffer) {
-        SynchronizationApplication *app =
-                static_cast<SynchronizationApplication *>(context);
+    void OnFrameAvailableRouter(void *context, TangoCameraId,
+                                const TangoImageBuffer *buffer) {
+        tango_depth_map::SynchronizationApplication *app =
+                static_cast<tango_depth_map::SynchronizationApplication *>(context);
         app->OnFrameAvailable(buffer);
     }
-
-    void SynchronizationApplication::OnFrameAvailable(const TangoImageBuffer* buffer) {
-
-        //my_color_image_.UpdateColor(buffer);
-
-        if (!test) {
-
-            //Format NV21 : 4:2:0 -> Luma in 1/1 image + Chroma in 1/2 image
-            cv::Mat _yuv(buffer->height + buffer->height/2, buffer->width, CV_8UC1, buffer->data);
-            cv::Mat _bgr(buffer->height, buffer->width, CV_8UC3);
-            cv::cvtColor(_yuv, _bgr, CV_YUV2BGR_NV21);
-            cv::imwrite(_path + "/test.jpg", _bgr);
-            test = false;
-        }
-    }
-    //COLOR
 
 
 // This function will route callbacks to our application object via the context
@@ -59,9 +40,23 @@ namespace tango_depth_map {
 // @param point_cloud The point cloud to pass on.
     void OnPointCloudAvailableRouter(void *context,
                                      const TangoPointCloud *point_cloud) {
-        SynchronizationApplication *app =
-                static_cast<SynchronizationApplication *>(context);
+        tango_depth_map::SynchronizationApplication *app =
+                static_cast<tango_depth_map::SynchronizationApplication *>(context);
         app->OnPointCloudAvailable(point_cloud);
+    }
+
+}  // namespace
+
+namespace tango_depth_map {
+
+    void SynchronizationApplication::OnFrameAvailable(
+            const TangoImageBuffer *buffer) {
+
+        //Format NV21 : 4:2:0 -> Luma in 1/1 image + Chroma in 1/2 image
+        /*cv::Mat _yuv(buffer->height + buffer->height / 2, buffer->width, CV_8UC1, buffer->data);
+        color_image_.colorImage.setTo(cv::Scalar(0, 0, 0));
+        cv::resize(color_image_.colorImage, color_image_.colorImage, cv::Size(buffer->width,buffer->height));
+        cv::cvtColor(_yuv, color_image_.colorImage, CV_YUV2BGR_NV21);*/
     }
 
     void SynchronizationApplication::OnPointCloudAvailable(
@@ -72,7 +67,6 @@ namespace tango_depth_map {
 
     SynchronizationApplication::SynchronizationApplication()
             : color_image_(),
-              //my_color_image_(),
               depth_image_(),
               main_scene_(),
               is_service_connected_(false),
@@ -88,10 +82,9 @@ namespace tango_depth_map {
         point_cloud_manager_ = nullptr;
     }
 
-    void SynchronizationApplication::OnCreate(JNIEnv *env, jobject activity, std::string path) {
+    void SynchronizationApplication::OnCreate(JNIEnv *env, jobject activity) {
         // Check the installed version of the TangoCore.  If it is too old, then
         // it will not support the most up to date features.
-        _path = path;
         int version;
         TangoErrorType err = TangoSupport_getTangoVersion(env, activity, &version);
         if (err != TANGO_SUCCESS || version < kTangoCoreMinimumVersion) {
@@ -267,7 +260,17 @@ namespace tango_depth_map {
             std::exit(EXIT_SUCCESS);
         }
 
-        depth_image_.SetCameraIntrinsics(color_camera_intrinsics);
+        TangoCameraIntrinsics depth_camera_intrinsics;
+        err = TangoService_getCameraIntrinsics(
+                TANGO_CAMERA_DEPTH, &depth_camera_intrinsics);
+        if (err != TANGO_SUCCESS) {
+            LOGE(
+                    "SynchronizationApplication: Failed to get the intrinsics for the depth"
+                            "camera.");
+            std::exit(EXIT_SUCCESS);
+        }
+
+        depth_image_.SetCameraIntrinsics(color_camera_intrinsics, depth_camera_intrinsics);
     }
 
     void SynchronizationApplication::OnPause() {
@@ -279,7 +282,6 @@ namespace tango_depth_map {
     void SynchronizationApplication::OnSurfaceCreated() {
         depth_image_.InitializeGL();
         color_image_.InitializeGL();
-        //my_color_image_.InitializeGL();
         main_scene_.InitializeGL();
         is_gl_initialized_ = true;
     }
@@ -299,7 +301,7 @@ namespace tango_depth_map {
         }
 
         double color_timestamp = 0.0;
-        double depth_timestamp = 0.0;
+        double depth_timestamp;
         bool new_points = false;
         TangoPointCloud *pointcloud_buffer;
 
@@ -309,6 +311,7 @@ namespace tango_depth_map {
             LOGE("SynchronizationApplication: Failed to get a point cloud.");
             return;
         }
+
         depth_timestamp = pointcloud_buffer->timestamp;
         // We need to make sure that we update the texture associated with the color
         // image.
@@ -346,6 +349,36 @@ namespace tango_depth_map {
 
         main_scene_.Render(color_image_.GetTextureId(), depth_image_.GetTextureId(),
                            color_camera_to_display_rotation_);
+
+        RecordManager();
+    }
+
+    void SynchronizationApplication::RecordManager(){
+        if (_isRecording) {
+
+            cv::Mat full(depth_image_.getFullDepthSize(), CV_8UC1, depth_image_.getFullDepthBuffer());
+            cv::Mat small(depth_image_.getSmallDepthSize(), CV_8UC1, depth_image_.getSmallDepthBuffer());
+
+            //_recordingBuffer.push_back(full);
+            //_recordingBuffer.push_back(small);
+
+            /*std::time_t result = std::time(nullptr);
+
+            std::string location = "/storage/emulated/0/Android/data/imt.tangodepthmap/files/Download/Recording_4/";
+
+            cv::imwrite(location + "full" + std::asctime(std::localtime(&result)) + ".png", full);
+            cv::imwrite(location + "smol" + std::asctime(std::localtime(&result)) + ".png", small);*/
+        }
+            /*
+            if we use bufferization
+        else{
+            if (!_recordingBuffer.empty()) {
+                for (int i = 0; i < _recordingBuffer.size(); i++){
+                    cv::imwrite("", _recordingBuffer[i]);
+                }
+                _recordingBuffer.clear();
+            }
+        }*/
     }
 
     void SynchronizationApplication::SetDepthAlphaValue(float alpha) {
@@ -356,8 +389,9 @@ namespace tango_depth_map {
         depth_image_.SetRenderingDistance(renderingDistance);
     }
 
-    void SynchronizationApplication::SetRecordingMode(bool isRecording){
-        depth_image_.SetRecordingMode(isRecording, _path);
+    void SynchronizationApplication::SetRecordingMode(bool isRecording, std::string path) {
+        _isRecording = isRecording;
+        _recordingPath = path;
     }
 
     void SynchronizationApplication::OnDisplayChanged(int display_rotation,
@@ -366,5 +400,31 @@ namespace tango_depth_map {
                 tango_gl::util::GetAndroidRotationFromColorCameraToDisplay(
                         display_rotation, color_camera_rotation);
     }
+
+    // RAW TEXT VERSION
+    /*void SynchronizationApplication::RecordManager(){
+       if (_isRecording) {
+           if (!_outputFile.is_open()) {
+               _outputFile.open(_path);
+
+               //__android_log_print(ANDROID_LOG_INFO, "Zbeul", "%s", _path.c_str());
+               bufferOfBuffer.clear();
+           }
+
+           //bufferOfBuffer.push_back(depth_image_.getGrayscaleBuffer());
+
+       } else {
+
+           if (_outputFile.is_open()) {
+
+               for (int i = 0; i < bufferOfBuffer.size(); i++){
+                   std::copy(bufferOfBuffer[i].begin(), bufferOfBuffer[i].end(), std::ostream_iterator<uint8_t>(_outputFile, " "));
+                   _outputFile << std::endl;
+               }
+               bufferOfBuffer.clear();
+               _outputFile.close();
+           }
+       }
+   }*/
 
 }  // namespace tango_depth_map
