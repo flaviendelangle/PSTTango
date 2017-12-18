@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+bool displayFullDepth = true;
+
 #include "tango-gl/conversions.h"
 #include "tango-gl/camera.h"
 #include <fstream>
@@ -115,13 +117,12 @@ namespace tango_depth_map {
             // (color image timestamp).
             glm::vec4 color_t1_point = color_t1_T_depth_t0 * depth_t0_point;
 
-            int pixel_x, pixel_y;
             // get the coordinate on image plane.
-            pixel_x = static_cast<int>((rgb_camera_intrinsics_.fx) *
+            int pixel_x = static_cast<int>((rgb_camera_intrinsics_.fx) *
                                        (color_t1_point.x / color_t1_point.z) +
                                        rgb_camera_intrinsics_.cx);
 
-            pixel_y = static_cast<int>((rgb_camera_intrinsics_.fy) *
+            int pixel_y = static_cast<int>((rgb_camera_intrinsics_.fy) *
                                        (color_t1_point.y / color_t1_point.z) +
                                        rgb_camera_intrinsics_.cy);
 
@@ -136,13 +137,11 @@ namespace tango_depth_map {
                                      &full_depth_grayscale_buffer_, &depth_value_buffer_);
 
             //Same as above but now using depth camera intrinsecs to avoid upsampling
-            int depth_x, depth_y;
-
-            depth_x = static_cast<int>((depth_camera_intrinsics_.fx) *
+            int depth_x = static_cast<int>((depth_camera_intrinsics_.fx) *
                                        (color_t1_point.x / color_t1_point.z) +
                                        depth_camera_intrinsics_.cx);
 
-            depth_y = static_cast<int>((depth_camera_intrinsics_.fy) *
+            int depth_y = static_cast<int>((depth_camera_intrinsics_.fy) *
                                        (color_t1_point.y / color_t1_point.z) +
                                        depth_camera_intrinsics_.cy);
 
@@ -156,7 +155,7 @@ namespace tango_depth_map {
 
         this->CreateOrBindCPUTexture();
 
-        if (true) { //Display depthmap calculated from rgb camera intrinsecs
+        if (displayFullDepth) { //Display depthmap calculated from rgb camera intrinsecs
             glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, rgb_image_width, rgb_image_height,
                             GL_LUMINANCE, GL_UNSIGNED_BYTE,
                             full_depth_grayscale_buffer_.data());

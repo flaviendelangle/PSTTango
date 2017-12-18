@@ -21,7 +21,7 @@
 #include "tango-gl/util.h"
 
 namespace tango_depth_map {
-// Utility functioins for Synchronization application.
+// Utility functions for Synchronization application.
     namespace util {
 // Returns a transformation matrix from a given TangoPoseData structure.
 // - pose_data: The original pose is used for the conversion.

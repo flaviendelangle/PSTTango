@@ -65,6 +65,8 @@ namespace tango_depth_map {
 
         void SetRenderingDistance(int renderingDistance) { mRenderingDistance = renderingDistance; }
 
+        //Getters on uchar* buffers, sizes and cv::Mat images for both full and small depth values
+
         uchar* getFullDepthBuffer() { return full_depth_grayscale_buffer_.data(); }
         uchar* getSmallDepthBuffer() { return small_depth_grayscale_buffer_.data(); }
 
@@ -101,7 +103,7 @@ namespace tango_depth_map {
                                       std::vector<uint8_t> *grayscale_buffer,
                                       std::vector<float> *depth_map_buffer);
 
-        //Window used for upsampling depth
+        //Window used for depth upsampling
         int kWindowSize = 4;
 
         //Distance interval corresponding to a 255 - 0 interval
@@ -116,13 +118,12 @@ namespace tango_depth_map {
         // The backing texture for CPU texture generation.
         GLuint cpu_texture_id_;
 
+        //Depth distance values
         std::vector<float> depth_value_buffer_;
 
-        // Color map buffer is for the texture render purpose, this value is written
-        // to the texture id buffer, and display as GL_LUMINANCE value.
+        //Grayscale values depth buffers and associated cv::Mat images
         std::vector<uint8_t> full_depth_grayscale_buffer_;
         cv::Mat fullDepthImage;
-
         std::vector<uint8_t> small_depth_grayscale_buffer_;
         cv::Mat smallDepthImage;
 

@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-#define GLM_FORCE_RADIANS
-
 #include <jni.h>
 
 #include "tango_depth_map/tango_depth_map_app.h"

@@ -134,18 +134,16 @@ namespace tango_depth_map {
         // RGB image
         ColorImage color_image_;
 
-        //MyColorImage my_color_image_;
-
         // Depth image created by projecting Point Cloud onto RGB image plane.
         DepthImage depth_image_;
+
+        // Write images to _recordingPath
+        bool _isRecording;
 
         // Path to the directory where images should be saved
         std::string _recordingPath;
 
         std::vector<cv::Mat> _imagesBuffer;
-
-        // Write images to _recordingPath
-        bool _isRecording;
 
         // Main scene which contains all the renderable objects.
         Scene main_scene_;
