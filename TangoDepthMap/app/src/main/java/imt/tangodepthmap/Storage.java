@@ -71,9 +71,14 @@ public class Storage
                 }
             }
         }
-        max++;
-        elementPath = folderPath + Storage.ELEMENT_DIRECTORY_NAME_PREFIX + max.toString() + "/";
+        elementPath = folderPath + Storage.ELEMENT_DIRECTORY_NAME_PREFIX + Storage.format(++max) + "/";
         Boolean success = new File(elementPath).mkdirs();
         return elementPath;
+    }
+
+    private static String format(Integer number) {
+        String result = number.toString();
+        Integer amount = 4 - result.length();
+        return new String(new char[amount]).replace("\0", "0") + result;
     }
 }
