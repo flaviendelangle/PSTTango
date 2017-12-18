@@ -32,13 +32,17 @@ namespace tango_depth_map {
 
     void ColorImage::UpdateColorImage(TangoImageBuffer *imageBuffer){
 
-        if(colorImage.empty()) colorImage.create(imageBuffer->height, imageBuffer->width, CV_8UC3);
+        if(_colorImage.empty()) _colorImage.create(imageBuffer->height, imageBuffer->width, CV_8UC3);
 
         //Format NV21 : 4:2:0 -> Luma in 1/1 image + Chroma in 1/2 image
         cv::Mat _yuv(imageBuffer->height + imageBuffer->height / 2, imageBuffer->width, CV_8UC1, imageBuffer->data);
-        colorImage.setTo(cv::Scalar(0, 0, 0));
-        cv::cvtColor(_yuv, colorImage, CV_YUV2BGR_NV21);
+        _colorImage.setTo(cv::Scalar(0, 0, 0));
+        cv::cvtColor(_yuv, _colorImage, CV_YUV2BGR_NV21);
+        cv::cvtColor(_colorImage, _grayscaleImage, CV_BGR2GRAY);
     }
 
-    ColorImage::~ColorImage() {}
+    ColorImage::~ColorImage() {
+        _colorImage.release();
+        _grayscaleImage.release();
+    }
 }  // namespace tango_depth_map

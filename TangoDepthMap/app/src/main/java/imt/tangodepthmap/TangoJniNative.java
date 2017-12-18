@@ -59,6 +59,10 @@ public class TangoJNINative {
 
     public static native void onGlSurfaceDrawFrame();
 
+    /**
+     * Alpha blending between color and depth image.
+     * Alpha = 0 : color image, Alpha = 1 : depth map
+     */
     public static native void setDepthAlphaValue(float alpha);
 
     public static native void setRenderingDistanceValue(int renderingDistance);

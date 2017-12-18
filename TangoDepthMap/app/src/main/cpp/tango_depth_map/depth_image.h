@@ -71,6 +71,9 @@ namespace tango_depth_map {
         cv::Size getFullDepthSize() { return cv::Size(rgb_camera_intrinsics_.width, rgb_camera_intrinsics_.height); }
         cv::Size getSmallDepthSize() { return cv::Size(depth_camera_intrinsics_.width, depth_camera_intrinsics_.height); }
 
+        cv::Mat getFullDepthImage() { return fullDepthImage; }
+        cv::Mat getSmallDepthImage() { return smallDepthImage; }
+
     private:
 
         // Initialize the OpenGL structures needed for the CPU texture generation.
@@ -118,8 +121,10 @@ namespace tango_depth_map {
         // Color map buffer is for the texture render purpose, this value is written
         // to the texture id buffer, and display as GL_LUMINANCE value.
         std::vector<uint8_t> full_depth_grayscale_buffer_;
+        cv::Mat fullDepthImage;
 
         std::vector<uint8_t> small_depth_grayscale_buffer_;
+        cv::Mat smallDepthImage;
 
         // The camera intrinsics of current device.
         TangoCameraIntrinsics rgb_camera_intrinsics_;
@@ -131,7 +136,6 @@ namespace tango_depth_map {
         GLuint vertex_buffer_handle_;
         GLuint vertices_handle_;
         GLuint mvp_handle_;
-
     };
 }  // namespace tango_depth_map
 

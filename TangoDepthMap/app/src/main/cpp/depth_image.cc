@@ -36,7 +36,10 @@ namespace tango_depth_map {
               mvp_handle_(0),
               mRenderingDistance(1000){}
 
-    DepthImage::~DepthImage() {}
+    DepthImage::~DepthImage() {
+        fullDepthImage.release();
+        smallDepthImage.release();
+    }
 
     void DepthImage::InitializeGL() {
         texture_id_ = 0;
@@ -132,7 +135,6 @@ namespace tango_depth_map {
             UpSampleDepthAroundPoint(grayscale_value, color_t1_point.z, pixel_x, pixel_y,
                                      &full_depth_grayscale_buffer_, &depth_value_buffer_);
 
-            //DEPTHMAP
             //Same as above but now using depth camera intrinsecs to avoid upsampling
             int depth_x, depth_y;
 
@@ -147,13 +149,10 @@ namespace tango_depth_map {
             int pixel_num = depth_x + depth_y * depth_image_width;
             if (pixel_num > 0 && pixel_num < depth_image_size)
                 small_depth_grayscale_buffer_[pixel_num] = grayscale_value;
-            //DEPTHMAP
         }
 
-        /*int start = clock();
-        int end = clock();
-        LOGE("Execution time");
-        __android_log_print(ANDROID_LOG_INFO, "Zbeul", "%f", (end-start)/double(CLOCKS_PER_SEC)*1000);*/
+        fullDepthImage = cv::Mat(getFullDepthSize(), CV_8UC1, getFullDepthBuffer());
+        smallDepthImage = cv::Mat(getSmallDepthSize(), CV_8UC1, getSmallDepthBuffer());
 
         this->CreateOrBindCPUTexture();
 

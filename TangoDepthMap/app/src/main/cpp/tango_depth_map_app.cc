@@ -33,7 +33,7 @@ namespace {
 // The minimum Tango Core version required from this application.
     constexpr int kTangoCoreMinimumVersion = 9377;
 
-    //COLOR
+    //Image buffer callback
     void OnFrameAvailableRouter(void *context, TangoCameraId,
                                 const TangoImageBuffer *buffer) {
         tango_depth_map::SynchronizationApplication *app =
@@ -41,23 +41,22 @@ namespace {
         app->OnFrameAvailable(buffer);
     }
 
-
-// This function will route callbacks to our application object via the context
-// parameter.
-// @param context Will be a pointer to a SynchronizationApplication instance  on
-// which to call callbacks.
-// @param point_cloud The point cloud to pass on.
+    // This function will route callbacks to our application object via the context
+    // parameter.
+    // @param context Will be a pointer to a SynchronizationApplication instance  on
+    // which to call callbacks.
+    // @param point_cloud The point cloud to pass on.
     void OnPointCloudAvailableRouter(void *context,
                                      const TangoPointCloud *point_cloud) {
         tango_depth_map::SynchronizationApplication *app =
                 static_cast<tango_depth_map::SynchronizationApplication *>(context);
         app->OnPointCloudAvailable(point_cloud);
     }
-
 }  // namespace
 
 namespace tango_depth_map {
 
+    // Update the color image buffer
     void SynchronizationApplication::OnFrameAvailable(
             const TangoImageBuffer *buffer) {
         TangoSupport_updateImageBuffer(image_buffer_manager_, buffer);
@@ -76,7 +75,7 @@ namespace tango_depth_map {
               is_service_connected_(false),
               is_gl_initialized_(false),
               color_camera_to_display_rotation_(
-                      TangoSupport_Rotation::TANGO_SUPPORT_ROTATION_0) {}
+                      TangoSupport_Rotation::TANGO_SUPPORT_ROTATION_0){}
 
     SynchronizationApplication::~SynchronizationApplication() {
         if (tango_config_) {
@@ -92,9 +91,12 @@ namespace tango_depth_map {
     void SynchronizationApplication::OnCreate(JNIEnv *env, jobject activity, JavaVM *javaVM,
                                               jobject context) {
 
-        //Caching the jvm to call java functions from cpp
+        //Caching the jvm and context to call java functions from cpp later
         _javaVM = javaVM;
         _context = context;
+
+        faceDetector.load("lbpcascade_frontalface.xml");
+        if(faceDetector.empty()) LOGE("FACE DETECTOR NOT LOADED");
 
         // Check the installed version of the TangoCore.  If it is too old, then
         // it will not support the most up to date features.
@@ -106,6 +108,9 @@ namespace tango_depth_map {
                             "date.");
             std::exit(EXIT_SUCCESS);
         }
+
+        //Show color image
+        SetDepthAlphaValue(0.0);
     }
 
     void SynchronizationApplication::OnTangoServiceConnected(JNIEnv *env,
@@ -132,7 +137,6 @@ namespace tango_depth_map {
     }
 
     void SynchronizationApplication::TangoSetupConfig() {
-        SetDepthAlphaValue(0.0);
 
         if (tango_config_ != nullptr) {
             return;
@@ -322,6 +326,7 @@ namespace tango_depth_map {
             return;
         }
 
+        // Retrieve latest image buffer and update the color image
         bool new_data = false;
         TangoImageBuffer *imageBuffer;
         if (TangoSupport_getLatestImageBufferAndNewDataFlag(
@@ -330,7 +335,6 @@ namespace tango_depth_map {
             LOGE("SynchronizationApplication: Failed to get a new image.");
             return;
         }
-
         color_image_.UpdateColorImage(imageBuffer);
 
         double color_timestamp = 0.0;
@@ -389,11 +393,9 @@ namespace tango_depth_map {
     void SynchronizationApplication::RecordManager() {
         if (_isRecording) {
 
-            cv::Mat full(depth_image_.getFullDepthSize(), CV_8UC1,
-                         depth_image_.getFullDepthBuffer());
-            cv::Mat small(depth_image_.getSmallDepthSize(), CV_8UC1,
-                          depth_image_.getSmallDepthBuffer());
-            cv::Mat colorImg = color_image_.getColorImage();
+            cv::Mat full = depth_image_.getFullDepthImage();
+            cv::Mat small = depth_image_.getSmallDepthImage();
+            cv::Mat colorImg = color_image_.GetColorImage();
 
             if (!full.empty()) _imagesBuffer.push_back(full);
             else _imagesBuffer.push_back(cv::Mat(10, 10, CV_8UC1, 0));
@@ -403,14 +405,12 @@ namespace tango_depth_map {
 
             if (!colorImg.empty()) _imagesBuffer.push_back(colorImg);
             else _imagesBuffer.push_back(cv::Mat(10, 10, CV_8UC1, 0));
+
         } else {
             if (!_imagesBuffer.empty()) {
-                __android_log_print(ANDROID_LOG_INFO, "Zbeul", "%d", (int) _imagesBuffer.size());
                 for (int i = 0; i < _imagesBuffer.size(); i += 3) {
                     std::string strTimestamp = to_string(timestamp);
-
                     //cv::imwrite(_recordingPath + "full_depth_" +  strTimestamp + ".png", _imagesBuffer[i]);
-
                     cv::imwrite(_recordingPath + "small_depth_" + strTimestamp + ".png",
                                 _imagesBuffer[i + 1]);
                     //cv::imwrite(_recordingPath + "color_" +  strTimestamp + ".png", _imagesBuffer[i + 2]);
@@ -439,31 +439,6 @@ namespace tango_depth_map {
                     }
                 }
             }
-
-            // Call Java from cpp guide  :
-
-            // access the class your.package.class
-            /*jclass cls = env->FindClass("your/package/class");
-            if (cls == nullptr) LOGE("Class not found");
-            else {
-                // access the default constructor with <init>
-                // ()V : no arguments, void return
-                jmethodID constructor = env->GetMethodID(cls, "<init>", "()V");
-                if (constructor == nullptr) LOGE("Constructor not found");
-                else {
-                    // create an instance of the class
-                    jobject object = env->NewObject(cls, constructor);
-
-                    // access the method yourMethod
-                    // Here, (I)I means 1 parameter of type Integer, return Integer)
-                    jmethodID method = env->GetMethodID(cls, "yourMethod", "(I)I");
-                    if (method == nullptr) LOGE("Method not found");
-                    else {
-                        // call the method with the needed arguments
-                        env->CallVoidMethod(object, method, 5);
-                    }
-                }
-            }*/
         }
     }
 

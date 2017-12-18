@@ -95,12 +95,6 @@ Java_imt_tangodepthmap_TangoJNINative_onDisplayChanged(
     return app.OnDisplayChanged(display_rotation, color_camera_rotation);
 }
 
-JNIEXPORT void JNICALL
-Java_imt_tangodepthmap_TangoJNINative_showUpDirectory( JNIEnv* env, jobject obj){
-
-
-}
-
 #ifdef __cplusplus
 }
 #endif

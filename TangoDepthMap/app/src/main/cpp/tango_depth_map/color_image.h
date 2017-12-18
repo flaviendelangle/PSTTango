@@ -34,12 +34,15 @@ namespace tango_depth_map {
 
         void InitializeGL();
 
-        cv::Mat getColorImage() { return colorImage; }
+        cv::Mat GetColorImage() { return _colorImage; }
+
+        cv::Mat GetGrayscaleImage() { return _grayscaleImage; }
 
     private:
         GLuint texture_id_;
 
-        cv::Mat colorImage;
+        cv::Mat _colorImage;
+        cv::Mat _grayscaleImage;
 
     };
 }  // namespace tango_depth_map

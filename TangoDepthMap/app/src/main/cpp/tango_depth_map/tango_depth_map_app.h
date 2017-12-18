@@ -29,6 +29,8 @@
 #include <tango_depth_map/util.h>
 #include <tango-gl/util.h>
 
+#include "opencv2/objdetect/objdetect.hpp"
+
 namespace tango_depth_map {
 
 // This thread safe class is the main application for Synchronization.
@@ -126,6 +128,8 @@ namespace tango_depth_map {
         // This function will start the Tango Service pipeline, in this case, it will
         // start Depth Sensing callbacks.
         void TangoConnect();
+
+        cv::CascadeClassifier faceDetector;
 
         // RGB image
         ColorImage color_image_;

@@ -2,7 +2,6 @@ package imt.tangodepthmap;
 
 import android.content.Context;
 import android.media.MediaScannerConnection;
-import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 
 import android.content.ComponentName;
@@ -13,7 +12,6 @@ import android.hardware.display.DisplayManager;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.util.Log;
 import android.view.Display;
 import android.view.View;
 import android.view.WindowManager;
@@ -22,8 +20,10 @@ import android.widget.CompoundButton;
 import android.widget.SeekBar;
 
 import java.io.File;
-import java.util.regex.Matcher;
 
+/**
+ * Main Activity
+ */
 public class TangoDepthMapActivity extends AppCompatActivity {
 
     private static final String TAG = TangoDepthMapActivity.class.getSimpleName();
@@ -34,12 +34,16 @@ public class TangoDepthMapActivity extends AppCompatActivity {
     // For all current Tango devices, color camera is in the camera id 0.
     private static final int COLOR_CAMERA_ID = 0;
 
+    // The path where the current recording will be stored;
     private static String recordingPath;
 
+    // The surface used to render the image
     private GLSurfaceView mGLView;
-
-    private SeekBar mDepthOverlaySeekbar;
+    // This slider changes the interval of depth values corresponding to grayscale colors 255 - 0
+    private SeekBar mDepthDistanceSeekbar;
+    // Checkbox displaying the depthmap if checked
     private CheckBox mDepthmapCheckbox;
+    // Checkbox recording the different images if checked
     private CheckBox mRecordCheckbox;
 
     // Tango Service connection.
@@ -59,7 +63,7 @@ public class TangoDepthMapActivity extends AppCompatActivity {
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress,
                                       boolean fromUser) {
-            //Sets minimum value to 500cm or 0.5m
+            //Sets minimum value to 500cm (or 0.5m)
             TangoJNINative.setRenderingDistanceValue(progress + 500);
         }
 
@@ -72,32 +76,32 @@ public class TangoDepthMapActivity extends AppCompatActivity {
         }
     }
 
+    // Implementation of the checkbox displaying the depthmap
+    // We use alpha blending to switch between the color image and the depth image
     private class DepthmapCheckboxListener implements CheckBox.OnCheckedChangeListener {
         @Override
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
             if (buttonView == mDepthmapCheckbox) {
-                //If the checkbox is checked
                 if (isChecked) {
-
                     //Display the depth image and the depth cursor, and hide the color image
                     TangoJNINative.setDepthAlphaValue(1.0f);
-                    mDepthOverlaySeekbar.setVisibility(View.VISIBLE);
+                    mDepthDistanceSeekbar.setVisibility(View.VISIBLE);
                 } else {
                     //Display the color image and hide the depth image and the depth cursor
                     TangoJNINative.setDepthAlphaValue(0.0f);
-                    mDepthOverlaySeekbar.setVisibility(View.GONE);
+                    mDepthDistanceSeekbar.setVisibility(View.GONE);
                 }
             }
         }
     }
 
+    // Implementation of the checkbox recording the images
     private class RecordCheckboxListener implements CheckBox.OnCheckedChangeListener {
         @Override
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
             if (buttonView == mRecordCheckbox) {
-                //If the checkbox is checked
                 if (isChecked) {
-
+                    //Get an available directory to record current images and send it to C++
                     recordingPath = Storage.getFilePath();
                     TangoJNINative.setRecordingMode(true, recordingPath);
 
@@ -105,16 +109,6 @@ public class TangoDepthMapActivity extends AppCompatActivity {
                     TangoJNINative.setRecordingMode(false, "");
                 }
             }
-        }
-    }
-
-    static void refreshDirectory(Context context){
-
-        File[] files = new File(recordingPath).listFiles();
-        for (File file : files) {
-            //Because of MTP Protocol, files would show only after a reboot without this
-            //See : https://stackoverflow.com/questions/13507789/folder-added-in-android-not-visible-via-usb
-            MediaScannerConnection.scanFile(context, new String[] {file.getAbsolutePath()}, null, null);
         }
     }
 
@@ -132,7 +126,6 @@ public class TangoDepthMapActivity extends AppCompatActivity {
             displayManager.registerDisplayListener(new DisplayManager.DisplayListener() {
                 @Override
                 public void onDisplayAdded(int displayId) {
-
                 }
 
                 @Override
@@ -153,9 +146,9 @@ public class TangoDepthMapActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_main);
 
-        mDepthOverlaySeekbar = (SeekBar) findViewById(R.id.depth_overlay_alpha_seekbar);
-        mDepthOverlaySeekbar.setOnSeekBarChangeListener(new DepthOverlaySeekbarListener());
-        mDepthOverlaySeekbar.setVisibility(View.GONE);
+        mDepthDistanceSeekbar = (SeekBar) findViewById(R.id.depth_distance_seekbar);
+        mDepthDistanceSeekbar.setOnSeekBarChangeListener(new DepthOverlaySeekbarListener());
+        mDepthDistanceSeekbar.setVisibility(View.GONE);
 
         mDepthmapCheckbox = (CheckBox) findViewById(R.id.depthmap_checkbox);
         mDepthmapCheckbox.setOnCheckedChangeListener(new DepthmapCheckboxListener());
@@ -205,5 +198,15 @@ public class TangoDepthMapActivity extends AppCompatActivity {
         Camera.getCameraInfo(COLOR_CAMERA_ID, colorCameraInfo);
 
         TangoJNINative.onDisplayChanged(display.getRotation(), colorCameraInfo.orientation);
+    }
+
+    // Method only called from JNI after the recording is done
+    // Because of MTP Protocol, newly written files & folders would show only after a reboot without this
+    // See : https://stackoverflow.com/questions/13507789/folder-added-in-android-not-visible-via-usb
+    static void refreshDirectory(Context context) {
+        File[] files = new File(recordingPath).listFiles();
+        for (File file : files) {
+            MediaScannerConnection.scanFile(context, new String[]{file.getAbsolutePath()}, null, null);
+        }
     }
 }
