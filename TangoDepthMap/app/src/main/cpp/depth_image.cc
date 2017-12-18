@@ -133,7 +133,7 @@ namespace tango_depth_map {
                                      &full_depth_grayscale_buffer_, &depth_value_buffer_);
 
             //DEPTHMAP
-            //Same as above but now using depth camera intrinsecs to avoing upsampling
+            //Same as above but now using depth camera intrinsecs to avoid upsampling
             int depth_x, depth_y;
 
             depth_x = static_cast<int>((depth_camera_intrinsics_.fx) *
@@ -157,7 +157,7 @@ namespace tango_depth_map {
 
         this->CreateOrBindCPUTexture();
 
-        if (false) { //Display depthmap calculated from rgb camera intrinsecs
+        if (true) { //Display depthmap calculated from rgb camera intrinsecs
             glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, rgb_image_width, rgb_image_height,
                             GL_LUMINANCE, GL_UNSIGNED_BYTE,
                             full_depth_grayscale_buffer_.data());
@@ -165,7 +165,8 @@ namespace tango_depth_map {
             glBindTexture(GL_TEXTURE_2D, 0);
 
         } else { //Display depthmap calculated from depth camera intrinsecs
-            glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, depth_image_width, depth_image_height,
+            glTexSubImage2D(GL_TEXTURE_2D, 0, (rgb_image_width - depth_image_width) / 2,
+                            (rgb_image_height - depth_image_height) / 2, depth_image_width, depth_image_height,
                             GL_LUMINANCE, GL_UNSIGNED_BYTE,
                             small_depth_grayscale_buffer_.data());
             tango_gl::util::CheckGlError("DepthImage glTexSubImage2D");

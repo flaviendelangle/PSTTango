@@ -29,7 +29,10 @@ JNIEXPORT void JNICALL
 Java_imt_tangodepthmap_TangoJNINative_onCreate(
         JNIEnv *env, jobject, jobject activity) {
 
-    app.OnCreate(env, activity);
+    JavaVM* javaVM;
+    env->GetJavaVM(&javaVM);
+
+    app.OnCreate(env, activity, javaVM, env->NewGlobalRef(activity));
 }
 
 JNIEXPORT void JNICALL
@@ -90,6 +93,12 @@ JNIEXPORT void JNICALL
 Java_imt_tangodepthmap_TangoJNINative_onDisplayChanged(
         JNIEnv *, jobject, jint display_rotation, jint color_camera_rotation) {
     return app.OnDisplayChanged(display_rotation, color_camera_rotation);
+}
+
+JNIEXPORT void JNICALL
+Java_imt_tangodepthmap_TangoJNINative_showUpDirectory( JNIEnv* env, jobject obj){
+
+
 }
 
 #ifdef __cplusplus

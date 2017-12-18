@@ -1,5 +1,7 @@
 package imt.tangodepthmap;
 
+import android.content.Context;
+import android.media.MediaScannerConnection;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 
@@ -20,8 +22,10 @@ import android.widget.CompoundButton;
 import android.widget.SeekBar;
 
 import java.io.File;
+import java.util.regex.Matcher;
 
 public class TangoDepthMapActivity extends AppCompatActivity {
+
     private static final String TAG = TangoDepthMapActivity.class.getSimpleName();
 
     // The minimum Tango Core version required from this application.
@@ -30,13 +34,13 @@ public class TangoDepthMapActivity extends AppCompatActivity {
     // For all current Tango devices, color camera is in the camera id 0.
     private static final int COLOR_CAMERA_ID = 0;
 
+    private static String recordingPath;
+
     private GLSurfaceView mGLView;
 
     private SeekBar mDepthOverlaySeekbar;
     private CheckBox mDepthmapCheckbox;
     private CheckBox mRecordCheckbox;
-
-    private String mPath;
 
     // Tango Service connection.
     ServiceConnection mTangoServiceConnection = new ServiceConnection() {
@@ -94,24 +98,29 @@ public class TangoDepthMapActivity extends AppCompatActivity {
                 //If the checkbox is checked
                 if (isChecked) {
 
-                    File folder =  getExternalFilesDir(Storage.ROOT_DIRECTORY_NAME);
-                    String path = Storage.getFilePath(folder);
-                    Log.i(TAG, path);
-
-                    TangoJNINative.setRecordingMode(true, path);
+                    recordingPath = Storage.getFilePath();
+                    TangoJNINative.setRecordingMode(true, recordingPath);
 
                 } else {
-
                     TangoJNINative.setRecordingMode(false, "");
-
                 }
             }
         }
     }
 
+    static void refreshDirectory(Context context){
+
+        File[] files = new File(recordingPath).listFiles();
+        for (File file : files) {
+            //Because of MTP Protocol, files would show only after a reboot without this
+            //See : https://stackoverflow.com/questions/13507789/folder-added-in-android-not-visible-via-usb
+            MediaScannerConnection.scanFile(context, new String[] {file.getAbsolutePath()}, null, null);
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.i(TAG, TAG);
+
         super.onCreate(savedInstanceState);
 
         Display display = getWindowManager().getDefaultDisplay();
@@ -162,9 +171,6 @@ public class TangoDepthMapActivity extends AppCompatActivity {
         // Configure OpenGL renderer
         mGLView.setEGLContextClientVersion(2);
         mGLView.setRenderer(new TangoDepthMapRenderer(this));
-
-        /*File truc =  getExternalFilesDir(Environment.DIRECTORY_MOVIES);
-        mPath = truc.getAbsolutePath();*/
 
         TangoJNINative.onCreate(this);
     }

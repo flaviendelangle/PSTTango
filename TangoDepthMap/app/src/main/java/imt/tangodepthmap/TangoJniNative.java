@@ -65,7 +65,5 @@ public class TangoJNINative {
 
     public static native void setRecordingMode(boolean isRecording, String path);
 
-    //public static native void setGPUUpsample(boolean on);
-
     public static native void onDisplayChanged(int displayRotation, int colorCameraRotation);
 }

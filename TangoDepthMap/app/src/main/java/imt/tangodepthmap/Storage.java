@@ -1,5 +1,6 @@
 package imt.tangodepthmap;
 
+import android.media.MediaScannerConnection;
 import android.os.Environment;
 import android.util.Log;
 
@@ -15,6 +16,11 @@ import java.util.regex.Pattern;
 
 public class Storage
 {
+    private static String elementPath;
+
+    private static final String TAG = "TangoDepthMapActivity";
+
+    public static final String HARDCODED_PATH = "/storage/emulated/0/Movies/";
 
     public static final String ROOT_DIRECTORY_NAME = Environment.DIRECTORY_MOVIES;
 
@@ -32,11 +38,18 @@ public class Storage
         return Storage.getFile(folderPath);
     }
 
+    public static String getFilePath() {
+        File folder = new File(Storage.HARDCODED_PATH);
+        String folderPath = Storage.getFolderPath(folder);
+        return Storage.getFile(folderPath);
+    }
+
     private static String getFolderPath(File rootFolder) {
         String projectPath = rootFolder.getAbsolutePath() + "/" + Storage.PROJECT_DIRECTORY_NAME + "/";
         File projectFolder = new File(projectPath);
         if(!projectFolder.exists()) {
             Boolean success = projectFolder.mkdirs();
+            Log.d(TAG, "Project folder make succeded : " + success);
         }
         return projectFolder.getAbsolutePath() + "/";
     }
@@ -59,9 +72,8 @@ public class Storage
             }
         }
         max++;
-        String elementPath = folderPath + Storage.ELEMENT_DIRECTORY_NAME_PREFIX + max.toString() + "/";
+        elementPath = folderPath + Storage.ELEMENT_DIRECTORY_NAME_PREFIX + max.toString() + "/";
         Boolean success = new File(elementPath).mkdirs();
         return elementPath;
     }
-
 }

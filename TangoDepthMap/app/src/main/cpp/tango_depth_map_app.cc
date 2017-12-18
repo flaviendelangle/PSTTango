@@ -15,10 +15,19 @@
  */
 #include <tango-gl/conversions.h>
 #include <tango_support.h>
-#include <chrono>
+#include <string>
 
 #include <tango_depth_map/tango_depth_map_app.h>
 #include <iterator>
+
+int timestamp = 1;
+
+template<typename T>
+std::string to_string(T value) {
+    std::ostringstream os;
+    os << value;
+    return os.str();
+}
 
 namespace {
 // The minimum Tango Core version required from this application.
@@ -80,7 +89,13 @@ namespace tango_depth_map {
         image_buffer_manager_ = nullptr;
     }
 
-    void SynchronizationApplication::OnCreate(JNIEnv *env, jobject activity) {
+    void SynchronizationApplication::OnCreate(JNIEnv *env, jobject activity, JavaVM *javaVM,
+                                              jobject context) {
+
+        //Caching the jvm to call java functions from cpp
+        _javaVM = javaVM;
+        _context = context;
+
         // Check the installed version of the TangoCore.  If it is too old, then
         // it will not support the most up to date features.
         int version;
@@ -310,8 +325,8 @@ namespace tango_depth_map {
         bool new_data = false;
         TangoImageBuffer *imageBuffer;
         if (TangoSupport_getLatestImageBufferAndNewDataFlag(
-                image_buffer_manager_, &imageBuffer, &new_data)!=
-            TANGO_SUCCESS){
+                image_buffer_manager_, &imageBuffer, &new_data) !=
+            TANGO_SUCCESS) {
             LOGE("SynchronizationApplication: Failed to get a new image.");
             return;
         }
@@ -371,32 +386,90 @@ namespace tango_depth_map {
         RecordManager();
     }
 
-    void SynchronizationApplication::RecordManager(){
+    void SynchronizationApplication::RecordManager() {
         if (_isRecording) {
 
-            cv::Mat full(depth_image_.getFullDepthSize(), CV_8UC1, depth_image_.getFullDepthBuffer());
-            cv::Mat small(depth_image_.getSmallDepthSize(), CV_8UC1, depth_image_.getSmallDepthBuffer());
+            cv::Mat full(depth_image_.getFullDepthSize(), CV_8UC1,
+                         depth_image_.getFullDepthBuffer());
+            cv::Mat small(depth_image_.getSmallDepthSize(), CV_8UC1,
+                          depth_image_.getSmallDepthBuffer());
+            cv::Mat colorImg = color_image_.getColorImage();
 
-            //_recordingBuffer.push_back(full);
-            //_recordingBuffer.push_back(small);
+            if (!full.empty()) _imagesBuffer.push_back(full);
+            else _imagesBuffer.push_back(cv::Mat(10, 10, CV_8UC1, 0));
 
-            /*std::time_t result = std::time(nullptr);
+            if (!small.empty()) _imagesBuffer.push_back(small);
+            else _imagesBuffer.push_back(cv::Mat(10, 10, CV_8UC1, 0));
 
-            std::string location = "/storage/emulated/0/Android/data/imt.tangodepthmap/files/Download/Recording_4/";
+            if (!colorImg.empty()) _imagesBuffer.push_back(colorImg);
+            else _imagesBuffer.push_back(cv::Mat(10, 10, CV_8UC1, 0));
+        } else {
+            if (!_imagesBuffer.empty()) {
+                __android_log_print(ANDROID_LOG_INFO, "Zbeul", "%d", (int) _imagesBuffer.size());
+                for (int i = 0; i < _imagesBuffer.size(); i += 3) {
+                    std::string strTimestamp = to_string(timestamp);
 
-            cv::imwrite(location + "full" + std::asctime(std::localtime(&result)) + ".png", full);
-            cv::imwrite(location + "smol" + std::asctime(std::localtime(&result)) + ".png", small);*/
-        }
-            /*
-            if we use bufferization
-        else{
-            if (!_recordingBuffer.empty()) {
-                for (int i = 0; i < _recordingBuffer.size(); i++){
-                    cv::imwrite("", _recordingBuffer[i]);
+                    //cv::imwrite(_recordingPath + "full_depth_" +  strTimestamp + ".png", _imagesBuffer[i]);
+
+                    cv::imwrite(_recordingPath + "small_depth_" + strTimestamp + ".png",
+                                _imagesBuffer[i + 1]);
+                    //cv::imwrite(_recordingPath + "color_" +  strTimestamp + ".png", _imagesBuffer[i + 2]);
+                    timestamp++;
                 }
-                _recordingBuffer.clear();
+                _imagesBuffer.clear();
+
+                LOGE("TRYING TO CALL JAVA FROM CPP");
+                JNIEnv *env;
+                LOGE("AttachCurrentThread");
+                _javaVM->AttachCurrentThread(&env, NULL);
+
+                //Working code to  :
+                // access class imt.tangodepthmap.storage
+                // access the default constructor
+                // create an instance of the class
+                // access the method "refreshDirector" ( ()V means () no parameters, V void return)
+                // call the method
+
+                LOGE("FindClass");
+                jclass cls = env->FindClass("imt/tangodepthmap/TangoDepthMapActivity");
+                if (cls == nullptr) LOGE("CLASS NOT FOUND");
+                else {
+                    LOGE("Class found");
+                    jmethodID methodId = env->GetStaticMethodID(cls, "refreshDirectory",
+                                                                "(Landroid/content/Context;)V");
+                    if (methodId == nullptr)
+                        LOGE("ERROR: method not found !");
+                    else {
+                        LOGE("Method found !");
+                        env->CallStaticVoidMethod(cls, methodId, _context);
+                    }
+                }
+
+                //Working code to  :
+                // access class imt.tangodepthmap.storage
+                // access the default constructor
+                // create an instance of the class
+                // access the method "refreshDirector" ( ()V means () no parameters, V void return)
+                // call the method
+
+                /*LOGE("FindClass");
+                jclass cls2 = env->FindClass("imt/tangodepthmap/Storage");  // try to find the class
+                if (cls2 == nullptr) LOGE("CLASS NOT FOUND");
+                else {
+                    jmethodID constructor = env->GetMethodID(cls2, "<init>",
+                                                             "()V"); //this is for default constructor
+                    if (constructor == nullptr) LOGE("CONSTRUCTOR NOT FOUND");
+                    else {
+                        jobject object = env->NewObject(cls2, constructor);
+                        jmethodID method = env->GetMethodID(cls2, "refreshDirectory", "()V");
+                        if (constructor == nullptr) LOGE("METHOD NOT FOUND");
+                        else {
+                            env->CallVoidMethod(object, method);
+                        }
+                    }
+                }*/
             }
-        }*/
+        }
     }
 
     void SynchronizationApplication::SetDepthAlphaValue(float alpha) {
@@ -408,8 +481,10 @@ namespace tango_depth_map {
     }
 
     void SynchronizationApplication::SetRecordingMode(bool isRecording, std::string path) {
+
+        if (isRecording) _recordingPath = path;
         _isRecording = isRecording;
-        _recordingPath = path;
+        timestamp = 1;
     }
 
     void SynchronizationApplication::OnDisplayChanged(int display_rotation,

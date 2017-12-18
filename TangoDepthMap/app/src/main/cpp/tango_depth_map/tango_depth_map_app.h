@@ -61,7 +61,7 @@ namespace tango_depth_map {
         //
         // @param env, java environment parameter OnCreate is being called.
         // @param caller_activity, caller of this function.
-        void OnCreate(JNIEnv *env, jobject caller_activity);
+        void OnCreate(JNIEnv *env, jobject activity, JavaVM* javaVM, jobject context);
 
         // OnPause() callback is called when this Android application's
         // OnCreate function is called from UI thread. In our application,
@@ -138,7 +138,7 @@ namespace tango_depth_map {
         // Path to the directory where images should be saved
         std::string _recordingPath;
 
-        std::vector<cv::Mat> _recordingBuffer;
+        std::vector<cv::Mat> _imagesBuffer;
 
         // Write images to _recordingPath
         bool _isRecording;
@@ -161,6 +161,9 @@ namespace tango_depth_map {
         bool is_gl_initialized_;
 
         TangoSupport_Rotation color_camera_to_display_rotation_;
+
+        JavaVM* _javaVM;
+        jobject _context;
     };
 }  // namespace tango_depth_map
 
