@@ -1,7 +1,5 @@
 package imt.tangodepthmap;
 
-import android.media.MediaScannerConnection;
-import android.os.Environment;
 import android.util.Log;
 
 import java.io.File;
@@ -10,19 +8,17 @@ import java.util.regex.Pattern;
 
 
 /**
- * Created by Flavien on 14/12/2017.
- *
+ * Created by Flavien DELANGLE and Maxime SEURRE on 14/12/2017.
+ * Class to manage the storage paths of our recordings
  */
 
-public class Storage
+public abstract class Storage
 {
     private static String elementPath;
 
     private static final String TAG = "TangoDepthMapActivity";
 
-    public static final String HARDCODED_PATH = "/storage/emulated/0/Movies/";
-
-    public static final String ROOT_DIRECTORY_NAME = Environment.DIRECTORY_MOVIES;
+    public static final String ROOT_DIRECTORY_NAME = "/storage/emulated/0/Movies/";
 
     public static final String PROJECT_DIRECTORY_NAME = "DepthMap_Recordings";
 
@@ -33,29 +29,44 @@ public class Storage
 
     private static final Pattern ELEMENT_DIRECTORY_REGEXP_PATTERN =  Pattern.compile(Storage.ELEMENT_DIRECTORY_REGEXP);
 
-    public static String getFilePath(File rootFolder) {
-        String folderPath = Storage.getFolderPath(rootFolder);
-        return Storage.getFile(folderPath);
-    }
 
+    /**
+     * Create a directory for a new recording and return it's absolute path
+     * Project Structure :
+     * | Movies <= Storage.ROOT_DIRECTORY_NAME
+     *   | DepthMap_Recordings <= Storage.PROJECT_DIRECTORY_NAME
+     *     | Recording_0001
+     *     | Recording_0002
+     *     ...
+     *   ...
+     * @return path to the new recording directory
+     */
     public static String getFilePath() {
-        File folder = new File(Storage.HARDCODED_PATH);
-        String folderPath = Storage.getFolderPath(folder);
-        return Storage.getFile(folderPath);
+        String directoryPath = Storage.getDirectoryPath();
+        return Storage.getFile(directoryPath);
     }
 
-    private static String getFolderPath(File rootFolder) {
-        String projectPath = rootFolder.getAbsolutePath() + "/" + Storage.PROJECT_DIRECTORY_NAME + "/";
-        File projectFolder = new File(projectPath);
-        if(!projectFolder.exists()) {
-            Boolean success = projectFolder.mkdirs();
-            Log.d(TAG, "Project folder make succeded : " + success);
+    /**
+     * Retrieve the path to the project directory (create it if it doesn't exist)
+     * @return path to the project directory
+     */
+    private static String getDirectoryPath() {
+        String projectPath = Storage.ROOT_DIRECTORY_NAME + "/" + Storage.PROJECT_DIRECTORY_NAME + "/";
+        File projectDirectory = new File(projectPath);
+        if(!projectDirectory.exists()) {
+            Boolean success = projectDirectory.mkdirs();
+            Log.d(TAG, "Project directory make succeded : " + success);
         }
-        return projectFolder.getAbsolutePath() + "/";
+        return projectDirectory.getAbsolutePath() + "/";
     }
 
-    private static String getFile(String folderPath) {
-        File[] files = new File(folderPath).listFiles();
+    /**
+     * Create a new directory for the current recording and retrieve it full path
+     * @param directoryPath path to the project directory
+     * @return path to the current recording directory
+     */
+    private static String getFile(String directoryPath) {
+        File[] files = new File(directoryPath).listFiles();
         Integer max = 0;
         for (File file : files) {
             if (file.isDirectory()) {
@@ -71,11 +82,17 @@ public class Storage
                 }
             }
         }
-        elementPath = folderPath + Storage.ELEMENT_DIRECTORY_NAME_PREFIX + Storage.format(++max) + "/";
+        elementPath = directoryPath + Storage.ELEMENT_DIRECTORY_NAME_PREFIX + Storage.format(++max) + "/";
         Boolean success = new File(elementPath).mkdirs();
         return elementPath;
     }
 
+    /**
+     * Format the number of the recording to assure a good display order on Windows
+     * Otherwise we would have the following order : Recording_1, Recording_10, ..., Recording_2, ...
+     * @param number the number we want to format
+     * @return a string representing the formatted number
+     */
     private static String format(Integer number) {
         String result = number.toString();
         Integer amount = 4 - result.length();

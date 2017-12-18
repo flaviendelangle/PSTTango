@@ -440,30 +440,30 @@ namespace tango_depth_map {
                 }
             }
 
-            // Call Java from cpp guide  :
+// Call Java from cpp guide  :
 
-            // access the class your.package.class
-            /*jclass cls = env->FindClass("your/package/class");
-            if (cls == nullptr) LOGE("Class not found");
-            else {
-                // access the default constructor with <init>
-                // ()V : no arguments, void return
-                jmethodID constructor = env->GetMethodID(cls, "<init>", "()V");
-                if (constructor == nullptr) LOGE("Constructor not found");
-                else {
-                    // create an instance of the class
-                    jobject object = env->NewObject(cls, constructor);
+// access the class your.package.class
+/*jclass cls = env->FindClass("your/package/class");
+if (cls == nullptr) LOGE("Class not found");
+else {
+    // access the default constructor with <init>
+    // ()V : no arguments, void return
+    jmethodID constructor = env->GetMethodID(cls, "<init>", "()V");
+    if (constructor == nullptr) LOGE("Constructor not found");
+    else {
+        // create an instance of the class
+        jobject object = env->NewObject(cls, constructor);
 
-                    // access the method yourMethod
-                    // Here, (I)I means 1 parameter of type Integer, return Integer)
-                    jmethodID method = env->GetMethodID(cls, "yourMethod", "(I)I");
-                    if (method == nullptr) LOGE("Method not found");
-                    else {
-                        // call the method with the needed arguments
-                        env->CallVoidMethod(object, method, 5);
-                    }
-                }
-            }*/
+        // access the method yourMethod
+        // Here, (I)I means 1 parameter of type Integer, return Integer)
+        jmethodID method = env->GetMethodID(cls, "yourMethod", "(I)I");
+        if (method == nullptr) LOGE("Method not found");
+        else {
+            // call the method with the needed arguments
+            env->CallVoidMethod(object, method, 5);
+        }
+    }
+}*/
         }
     }
 
