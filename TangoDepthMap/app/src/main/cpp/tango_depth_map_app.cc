@@ -418,57 +418,52 @@ namespace tango_depth_map {
                 }
                 _imagesBuffer.clear();
 
-                LOGE("TRYING TO CALL JAVA FROM CPP");
                 JNIEnv *env;
                 LOGE("AttachCurrentThread");
                 _javaVM->AttachCurrentThread(&env, NULL);
 
-                //Working code to  :
-                // access class imt.tangodepthmap.storage
-                // access the default constructor
-                // create an instance of the class
-                // access the method "refreshDirector" ( ()V means () no parameters, V void return)
-                // call the method
-
-                LOGE("FindClass");
+                // access the class imt.tangodepthmap.TangoDepthMapActivity
                 jclass cls = env->FindClass("imt/tangodepthmap/TangoDepthMapActivity");
-                if (cls == nullptr) LOGE("CLASS NOT FOUND");
+                if (cls == nullptr) LOGE("Class not found");
                 else {
                     LOGE("Class found");
+                    // access the static method refreshDirectory
+                    // (Landroid/content/Context;)V : 1 parameter of type Context, return Void
                     jmethodID methodId = env->GetStaticMethodID(cls, "refreshDirectory",
                                                                 "(Landroid/content/Context;)V");
-                    if (methodId == nullptr)
-                        LOGE("ERROR: method not found !");
+                    if (methodId == nullptr) LOGE("ERROR: method not found !");
                     else {
                         LOGE("Method found !");
+                        // call the static method with _context as a parameter
                         env->CallStaticVoidMethod(cls, methodId, _context);
                     }
                 }
-
-                //Working code to  :
-                // access class imt.tangodepthmap.storage
-                // access the default constructor
-                // create an instance of the class
-                // access the method "refreshDirector" ( ()V means () no parameters, V void return)
-                // call the method
-
-                /*LOGE("FindClass");
-                jclass cls2 = env->FindClass("imt/tangodepthmap/Storage");  // try to find the class
-                if (cls2 == nullptr) LOGE("CLASS NOT FOUND");
-                else {
-                    jmethodID constructor = env->GetMethodID(cls2, "<init>",
-                                                             "()V"); //this is for default constructor
-                    if (constructor == nullptr) LOGE("CONSTRUCTOR NOT FOUND");
-                    else {
-                        jobject object = env->NewObject(cls2, constructor);
-                        jmethodID method = env->GetMethodID(cls2, "refreshDirectory", "()V");
-                        if (constructor == nullptr) LOGE("METHOD NOT FOUND");
-                        else {
-                            env->CallVoidMethod(object, method);
-                        }
-                    }
-                }*/
             }
+
+            // Call Java from cpp guide  :
+
+            // access the class your.package.class
+            /*jclass cls = env->FindClass("your/package/class");
+            if (cls == nullptr) LOGE("Class not found");
+            else {
+                // access the default constructor with <init>
+                // ()V : no arguments, void return
+                jmethodID constructor = env->GetMethodID(cls, "<init>", "()V");
+                if (constructor == nullptr) LOGE("Constructor not found");
+                else {
+                    // create an instance of the class
+                    jobject object = env->NewObject(cls, constructor);
+
+                    // access the method yourMethod
+                    // Here, (I)I means 1 parameter of type Integer, return Integer)
+                    jmethodID method = env->GetMethodID(cls, "yourMethod", "(I)I");
+                    if (method == nullptr) LOGE("Method not found");
+                    else {
+                        // call the method with the needed arguments
+                        env->CallVoidMethod(object, method, 5);
+                    }
+                }
+            }*/
         }
     }
 
