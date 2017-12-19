@@ -43,7 +43,6 @@ namespace tango_depth_map {
 
         cv::Mat _colorImage;
         cv::Mat _grayscaleImage;
-
     };
 }  // namespace tango_depth_map
 
