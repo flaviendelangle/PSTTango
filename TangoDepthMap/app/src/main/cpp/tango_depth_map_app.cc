@@ -20,8 +20,6 @@
 #include <tango_depth_map/tango_depth_map_app.h>
 #include <iterator>
 
-bool yuvAvailable = false;
-
 int timestamp = 1;
 
 template<typename T>
@@ -61,20 +59,6 @@ namespace tango_depth_map {
     // Update the color image buffer
     void SynchronizationApplication::OnFrameAvailable(
             const TangoImageBuffer *buffer) {
-
-        /*if (!yuvAvailable) {
-            yuv_width_ = buffer->width;
-            yuv_height_ = buffer->height;
-            yuv_size_ = yuv_width_ * yuv_height_ + yuv_width_ * yuv_height_ / 2;
-            // Reserve and resize the buffer size for RGB and YUV data.
-            yuv_buffer_.resize(yuv_size_);
-            yuv_temp_buffer_.resize(yuv_size_);
-            yuvAvailable = true;
-        }
-
-        std::lock_guard<std::mutex> lock(yuv_buffer_mutex_);
-        memcpy(&yuv_temp_buffer_[0], buffer->data, yuv_size_);
-        swap_buffer_signal_ = true;*/
         if(TangoSupport_updateImageBuffer(image_buffer_manager_, buffer) != TANGO_SUCCESS)
             LOGE("COULD NOT UPDATE IMG BUFFER");
     }
@@ -91,6 +75,8 @@ namespace tango_depth_map {
               main_scene_(),
               is_service_connected_(false),
               is_gl_initialized_(false),
+              _isRecording(false),
+              _isDetectingFaces(false),
               color_camera_to_display_rotation_(
                       TangoSupport_Rotation::TANGO_SUPPORT_ROTATION_0){}
 
@@ -126,7 +112,7 @@ namespace tango_depth_map {
             std::exit(EXIT_SUCCESS);
         }
 
-        //Show color image
+        //Show color image first
         SetDepthAlphaValue(0.0);
     }
 
@@ -319,6 +305,8 @@ namespace tango_depth_map {
     void SynchronizationApplication::OnPause() {
         is_gl_initialized_ = false;
         is_service_connected_ = false;
+        _isRecording = false;
+        _isDetectingFaces = false;
         TangoService_disconnect();
     }
 
@@ -345,7 +333,6 @@ namespace tango_depth_map {
 
         bool new_img = false;
         TangoImageBuffer *imageBuffer;
-
         if (TangoSupport_getLatestImageBufferAndNewDataFlag(
                 image_buffer_manager_, &imageBuffer, &new_img) !=
             TANGO_SUCCESS) {
@@ -402,55 +389,35 @@ namespace tango_depth_map {
 
         color_image_.UpdateColorImage(imageBuffer);
 
-        //CreateColorImg();
+        if (_isDetectingFaces){
+            std::vector<cv::Rect> faces;
+            //-- Detect faces
+            faceDetector.detectMultiScale( color_image_._grayscaleImage, faces, 1.1, 2, 0|CV_HAAR_SCALE_IMAGE, cv::Size(200, 200) );
 
-        //if (detectOnce) detectAndDisplay(color_image_.GetGrayscaleImage(), depth_image_.getFullDepthImage());
+            for( size_t i = 0; i < faces.size(); i++ )
+            {
+                LOGE("FACE DETECTED");
+                cv::Point center( faces[i].x + faces[i].width*0.5, faces[i].y + faces[i].height*0.5 );
+                cv::ellipse(depth_image_._fullDepthImage, center, cv::Size( faces[i].width*0.5, faces[i].height*0.5), 0, 0, 360, 255, 8, 8, 0 );
+            }
+        }
 
+        // Binds the small and full buffer datas to opengl textures
+        // Must be done only after you're done modifying the datas
+        depth_image_.RenderingReady();
         main_scene_.Render(color_image_.GetTextureId(), depth_image_.GetTextureId(),
                            color_camera_to_display_rotation_);
 
         RecordManager();
     }
 
-    /*void SynchronizationApplication::CreateColorImg() {
-        if (!yuvAvailable) {
-            return;
-        }
-        {
-            std::lock_guard<std::mutex> lock(yuv_buffer_mutex_);
-            if (swap_buffer_signal_) {
-                std::swap(yuv_buffer_, yuv_temp_buffer_);
-                swap_buffer_signal_ = false;
-            }
-        }
-
-        color_image_.UpdateColorImage(yuv_height_, yuv_width_, yuv_buffer_.data());
-    }*/
-
-    void SynchronizationApplication::detectAndDisplay( cv::Mat frameDetect, cv::Mat frameShow )
-    {
-        std::vector<cv::Rect> faces;
-        cv::Mat frame_gray = frameDetect.clone();
-
-        cv::equalizeHist( frame_gray, frame_gray );
-
-        //-- Detect faces
-        faceDetector.detectMultiScale( frame_gray, faces, 1.1, 2, 0|CV_HAAR_SCALE_IMAGE, cv::Size(200, 200) );
-
-        for( size_t i = 0; i < faces.size(); i++ )
-        {
-            cv::Point center( faces[i].x + faces[i].width*0.5, faces[i].y + faces[i].height*0.5 );
-            cv::ellipse( frameShow, center, cv::Size( faces[i].width*0.5, faces[i].height*0.5), 0, 0, 360, 255, 8, 8, 0 );
-        }
-    }
-
     void SynchronizationApplication::RecordManager() {
         if (_isRecording) {
 
-            cv::Mat full = depth_image_.getFullDepthImage().clone();
-            cv::Mat small = depth_image_.getSmallDepthImage().clone();
-            cv::Mat colorImg = color_image_.GetColorImage().clone();
-            cv::Mat grayscaleImg = color_image_.GetGrayscaleImage().clone();
+            cv::Mat full = depth_image_._fullDepthImage.clone();
+            cv::Mat small = depth_image_._smallDepthImage.clone();
+            cv::Mat colorImg = color_image_._colorImage.clone();
+            cv::Mat grayscaleImg = color_image_._grayscaleImage.clone();
 
             if (!full.empty()) _imagesBuffer.push_back(full);
             else _imagesBuffer.push_back(cv::Mat(10, 10, CV_8UC1, 0));

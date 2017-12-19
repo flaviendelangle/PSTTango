@@ -30,24 +30,6 @@ namespace tango_depth_map {
         glBindTexture(GL_TEXTURE_EXTERNAL_OES, 0);
     }
 
-    /*void ColorImage::UpdateColorImage(int height, int width, uchar* data){
-
-        if(_colorImage.empty()){
-            _colorImage.create(height, width, CV_8UC3);
-            _colorImage.setTo(cv::Scalar(0, 0, 0));
-        }
-        if(_grayscaleImage.empty()){
-            _grayscaleImage.create(height, width, CV_8UC1);
-            _grayscaleImage.setTo(0);
-        }
-
-        //Format NV21 : 4:2:0 -> Luma in 1/1 image + Chroma in 1/2 image
-        cv::Mat _yuv(height + height / 2, width, CV_8UC1, data);
-
-        cv::cvtColor(_yuv, _colorImage, CV_YUV2BGR_NV21);
-        cv::cvtColor(_colorImage, _grayscaleImage, CV_BGR2GRAY);
-    }*/
-
     void ColorImage::UpdateColorImage(TangoImageBuffer *imageBuffer) {
 
         if(_colorImage.empty()){
@@ -66,7 +48,6 @@ namespace tango_depth_map {
         cv::cvtColor(_yuv, _colorImage, CV_YUV2BGR_NV21);
         cv::cvtColor(_colorImage, _grayscaleImage, CV_BGR2GRAY);
     }
-
 
     ColorImage::~ColorImage() {
         _colorImage.release();

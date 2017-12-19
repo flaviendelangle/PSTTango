@@ -39,8 +39,8 @@ namespace tango_depth_map {
               mRenderingDistance(1000){}
 
     DepthImage::~DepthImage() {
-        fullDepthImage.release();
-        smallDepthImage.release();
+        _fullDepthImage.release();
+        _smallDepthImage.release();
     }
 
     void DepthImage::InitializeGL() {
@@ -86,9 +86,7 @@ namespace tango_depth_map {
             const glm::mat4 &color_t1_T_depth_t0,
             const TangoPointCloud *render_point_cloud_buffer) {
 
-        int rgb_image_width = rgb_camera_intrinsics_.width;
-        int rgb_image_height = rgb_camera_intrinsics_.height;
-        int rgb_image_size = rgb_image_width * rgb_image_height;
+        int rgb_image_size = rgb_camera_intrinsics_.width * rgb_camera_intrinsics_.height;
 
         depth_value_buffer_.resize(rgb_image_size);
         std::fill(depth_value_buffer_.begin(), depth_value_buffer_.end(), 0);
@@ -96,9 +94,7 @@ namespace tango_depth_map {
         full_depth_grayscale_buffer_.resize(rgb_image_size);
         std::fill(full_depth_grayscale_buffer_.begin(), full_depth_grayscale_buffer_.end(), 0);
 
-        int depth_image_width = depth_camera_intrinsics_.width;
-        int depth_image_height = depth_camera_intrinsics_.height;
-        int depth_image_size = depth_image_height * depth_image_width;
+        int depth_image_size = depth_camera_intrinsics_.width * depth_camera_intrinsics_.height;
 
         small_depth_grayscale_buffer_.resize(depth_image_size);
         std::fill(small_depth_grayscale_buffer_.begin(), small_depth_grayscale_buffer_.end(), 0);
@@ -145,20 +141,27 @@ namespace tango_depth_map {
                                        (color_t1_point.y / color_t1_point.z) +
                                        depth_camera_intrinsics_.cy);
 
-            int pixel_num = depth_x + depth_y * depth_image_width;
+            int pixel_num = depth_x + depth_y * depth_camera_intrinsics_.width;
             if (pixel_num > 0 && pixel_num < depth_image_size)
                 small_depth_grayscale_buffer_[pixel_num] = grayscale_value;
         }
 
-        fullDepthImage = cv::Mat(getFullDepthSize(), CV_8UC1, getFullDepthBuffer());
-        smallDepthImage = cv::Mat(getSmallDepthSize(), CV_8UC1, getSmallDepthBuffer());
+        _fullDepthImage = cv::Mat(getFullDepthSize(), CV_8UC1, getFullDepthBuffer());
+        _smallDepthImage = cv::Mat(getSmallDepthSize(), CV_8UC1, getSmallDepthBuffer());
+    }
 
+    void DepthImage::RenderingReady(){
         this->CreateOrBindCPUTexture();
+
+        int rgb_image_width = rgb_camera_intrinsics_.width ;
+        int rgb_image_height = rgb_camera_intrinsics_.height ;
+        int depth_image_width = depth_camera_intrinsics_.width;
+        int depth_image_height = depth_camera_intrinsics_.height;
 
         if (displayFullDepth) { //Display depthmap calculated from rgb camera intrinsecs
             glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, rgb_image_width, rgb_image_height,
                             GL_LUMINANCE, GL_UNSIGNED_BYTE,
-                            full_depth_grayscale_buffer_.data());
+                    /*full_depth_grayscale_buffer_.data()*/_fullDepthImage.data);
             tango_gl::util::CheckGlError("DepthImage glTexSubImage2D");
             glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -166,7 +169,7 @@ namespace tango_depth_map {
             glTexSubImage2D(GL_TEXTURE_2D, 0, (rgb_image_width - depth_image_width) / 2,
                             (rgb_image_height - depth_image_height) / 2, depth_image_width, depth_image_height,
                             GL_LUMINANCE, GL_UNSIGNED_BYTE,
-                            small_depth_grayscale_buffer_.data());
+                    /*small_depth_grayscale_buffer_.data()*/ _smallDepthImage.data);
             tango_gl::util::CheckGlError("DepthImage glTexSubImage2D");
             glBindTexture(GL_TEXTURE_2D, 0);
         }

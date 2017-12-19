@@ -65,16 +65,16 @@ namespace tango_depth_map {
 
         void SetRenderingDistance(int renderingDistance) { mRenderingDistance = renderingDistance; }
 
-        //Getters on uchar* buffers, sizes and cv::Mat images for both full and small depth values
-
         uchar* getFullDepthBuffer() { return full_depth_grayscale_buffer_.data(); }
         uchar* getSmallDepthBuffer() { return small_depth_grayscale_buffer_.data(); }
 
         cv::Size getFullDepthSize() { return cv::Size(rgb_camera_intrinsics_.width, rgb_camera_intrinsics_.height); }
         cv::Size getSmallDepthSize() { return cv::Size(depth_camera_intrinsics_.width, depth_camera_intrinsics_.height); }
 
-        cv::Mat getFullDepthImage() { return fullDepthImage; }
-        cv::Mat getSmallDepthImage() { return smallDepthImage; }
+        void RenderingReady();
+
+        cv::Mat _fullDepthImage;
+        cv::Mat _smallDepthImage;
 
     private:
 
@@ -123,9 +123,7 @@ namespace tango_depth_map {
 
         //Grayscale values depth buffers and associated cv::Mat images
         std::vector<uint8_t> full_depth_grayscale_buffer_;
-        cv::Mat fullDepthImage;
         std::vector<uint8_t> small_depth_grayscale_buffer_;
-        cv::Mat smallDepthImage;
 
         // The camera intrinsics of current device.
         TangoCameraIntrinsics rgb_camera_intrinsics_;
