@@ -115,6 +115,8 @@ public class TangoDepthMapActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
+        Storage.getFiles("/storage/emulated/0/Movies/DepthMap_Recordings/Recording_0003/");
+
         super.onCreate(savedInstanceState);
 
         Display display = getWindowManager().getDefaultDisplay();
