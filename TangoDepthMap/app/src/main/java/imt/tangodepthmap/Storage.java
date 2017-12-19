@@ -3,8 +3,12 @@ package imt.tangodepthmap;
 import android.util.Log;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -44,6 +48,29 @@ public abstract class Storage
     public static String getFilePath() {
         String directoryPath = Storage.getDirectoryPath();
         return Storage.getFile(directoryPath);
+    }
+
+    public static Map<String, List<File>> getFiles(String directoryPath) {
+        File directory = new File(directoryPath);
+        File[] images = directory.listFiles();
+        Map<String, List<File>> files = new HashMap<>();
+        files.put("color", new ArrayList<File>());
+        files.put("smallDepth", new ArrayList<File>());
+        files.put("fullDepth", new ArrayList<File>());
+
+        for (File file : images) {
+            if (file.isFile()) {
+                String name = file.getName();
+                String[] elements = name.replace('.', '_').split("_");
+                files.get(elements[0]).add(file);
+            }
+        }
+        return files;
+    }
+
+    public static File getFile(String directoryPath, Integer imageNumber, String imageType) {
+        String filePath = directoryPath + imageType + "_" + Storage.format(imageNumber) + ".png";
+        return new File(filePath);
     }
 
     /**
