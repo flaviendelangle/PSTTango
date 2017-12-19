@@ -47,14 +47,24 @@ public abstract class Storage
      */
     public static String getFilePath() {
         String directoryPath = Storage.getDirectoryPath();
-        return Storage.getFile(directoryPath);
+        return Storage.getFileName(directoryPath);
     }
 
+    /**
+     * Create a HashMap with the file types (colorImg, smallDepth...) as keys
+     * and lists of images files as values
+     * Example :
+     * String path = "/storage/emulated/0/Movies/DepthMap_Recordings/Recording_0010/";
+     * File file = Storage.getFile(path, "color", 12);
+     * @param directoryPath directory of the recording from which we want to retrieve the images
+     * @return images
+     */
     public static Map<String, List<File>> getFiles(String directoryPath) {
         File directory = new File(directoryPath);
         File[] images = directory.listFiles();
         Map<String, List<File>> files = new HashMap<>();
-        files.put("color", new ArrayList<File>());
+        files.put("grayscaleImg", new ArrayList<File>());
+        files.put("colorImg", new ArrayList<File>());
         files.put("smallDepth", new ArrayList<File>());
         files.put("fullDepth", new ArrayList<File>());
 
@@ -68,7 +78,17 @@ public abstract class Storage
         return files;
     }
 
-    public static File getFile(String directoryPath, Integer imageNumber, String imageType) {
+    /**
+     * Retrieve an image stored by the app
+     * Example :
+     * String path = "/storage/emulated/0/Movies/DepthMap_Recordings/Recording_0010/";
+     * Map<String, List<File>> files = Storage.getFiles(path);
+     * @param directoryPath directory of the recording the image belongs to
+     * @param imageType type of the image (ex : colorImg, smallDepth...)
+     * @param imageNumber number of the image
+     * @return File image
+     */
+    public static File getFile(String directoryPath, String imageType, Integer imageNumber) {
         String filePath = directoryPath + imageType + "_" + Storage.format(imageNumber) + ".png";
         return new File(filePath);
     }
@@ -92,7 +112,7 @@ public abstract class Storage
      * @param directoryPath path to the project directory
      * @return path to the current recording directory
      */
-    private static String getFile(String directoryPath) {
+    private static String getFileName(String directoryPath) {
         File[] files = new File(directoryPath).listFiles();
         Integer max = 0;
         for (File file : files) {
