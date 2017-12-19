@@ -18,8 +18,11 @@ import android.view.WindowManager;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.SeekBar;
+import android.util.Log;
 
 import java.io.File;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Main Activity
@@ -114,8 +117,6 @@ public class TangoDepthMapActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
-        //Storage.getFiles("/storage/emulated/0/Movies/DepthMap_Recordings/Recording_0003/");
 
         super.onCreate(savedInstanceState);
 
