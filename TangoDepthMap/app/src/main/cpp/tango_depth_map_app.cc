@@ -396,7 +396,6 @@ namespace tango_depth_map {
 
             for( size_t i = 0; i < faces.size(); i++ )
             {
-                LOGE("FACE DETECTED");
                 cv::Point center( faces[i].x + faces[i].width*0.5, faces[i].y + faces[i].height*0.5 );
                 cv::ellipse(depth_image_._fullDepthImage, center, cv::Size( faces[i].width*0.5, faces[i].height*0.5), 0, 0, 360, 255, 8, 8, 0 );
             }
@@ -434,7 +433,10 @@ namespace tango_depth_map {
         } else {
             if (!_imagesBuffer.empty()) {
                 for (int i = 0; i < _imagesBuffer.size(); i += 4) {
-                    std::string strTimestamp = to_string(timestamp);
+
+                    std::string strTimestamp = formatTimestamp(timestamp);
+
+
                     //cv::imwrite(_recordingPath + "fullDepth_" +  strTimestamp + ".png", _imagesBuffer[i]);
                     //cv::imwrite(_recordingPath + "smallDepth_" + strTimestamp + ".png", _imagesBuffer[i + 1]);
                     cv::imwrite(_recordingPath + "colorImg_" +  strTimestamp + ".png", _imagesBuffer[i + 2]);
@@ -465,6 +467,13 @@ namespace tango_depth_map {
                 }
             }
         }
+    }
+
+    std::string SynchronizationApplication::formatTimestamp(int timestamp){
+        std::string strTimestamp = to_string(timestamp);
+        int nbSize = (int)strTimestamp.length();
+        std::string zeros(4 - nbSize, '0');
+        return zeros + strTimestamp;
     }
 
     void SynchronizationApplication::SetDepthAlphaValue(float alpha) {

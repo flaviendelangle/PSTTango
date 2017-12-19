@@ -59,6 +59,8 @@ public class TangoJNINative {
 
     public static native void onGlSurfaceDrawFrame();
 
+    public static native void useFaceDetector(boolean use);
+
     /**
      * Alpha blending between color and depth image.
      * Alpha = 0 : color image, Alpha = 1 : depth map

@@ -27,7 +27,7 @@ JNIEXPORT void JNICALL
 Java_imt_tangodepthmap_TangoJNINative_onCreate(
         JNIEnv *env, jobject, jobject activity) {
 
-    JavaVM* javaVM;
+    JavaVM *javaVM;
     env->GetJavaVM(&javaVM);
 
     app.OnCreate(env, activity, javaVM, env->NewGlobalRef(activity));
@@ -72,13 +72,13 @@ Java_imt_tangodepthmap_TangoJNINative_setDepthAlphaValue(
 
 JNIEXPORT void JNICALL
 Java_imt_tangodepthmap_TangoJNINative_setRenderingDistanceValue(
-        JNIEnv *, jobject ,jint renderingDistance) {
+        JNIEnv *, jobject, jint renderingDistance) {
     app.SetRenderingDistance(renderingDistance);
 }
 
 JNIEXPORT void JNICALL
 Java_imt_tangodepthmap_TangoJNINative_setRecordingMode(
-        JNIEnv *env, jobject ,jboolean isRecording, jstring path) {
+        JNIEnv *env, jobject, jboolean isRecording, jstring path) {
 
     const char *pathString = env->GetStringUTFChars(path, JNI_FALSE);
     std::string cppPath = std::string(pathString);
@@ -93,6 +93,10 @@ Java_imt_tangodepthmap_TangoJNINative_onDisplayChanged(
     app.OnDisplayChanged(display_rotation, color_camera_rotation);
 }
 
-#ifdef __cplusplus
+JNIEXPORT void JNICALL
+Java_imt_tangodepthmap_TangoJNINative_useFaceDetector(
+        JNIEnv *env, jobject, jboolean use) {
+    app.UseFaceDetector(use);
 }
-#endif
+
+}

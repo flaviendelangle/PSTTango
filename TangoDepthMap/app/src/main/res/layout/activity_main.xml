@@ -52,4 +52,14 @@
         android:checked="false"
         android:layout_margin="2dp" />
 
+    <CheckBox
+        android:id="@+id/face_detect_checkbox"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:text="Detect"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:checked="false"
+        android:layout_margin="2dp" />
+
 </RelativeLayout>

@@ -90,6 +90,8 @@ namespace tango_depth_map {
 
         void RecordManager();
 
+        void UseFaceDetector(bool use) { _isDetectingFaces = use; }
+
         // Set the transparency of Depth Image.
         void SetDepthAlphaValue(float alpha);
 
@@ -129,10 +131,10 @@ namespace tango_depth_map {
         // start Depth Sensing callbacks.
         void TangoConnect();
 
+        std::string formatTimestamp(int timestamp);
+
         cv::CascadeClassifier faceDetector;
         bool _classifierLoaded;
-
-        void detectAndDisplay( cv::Mat frameDetect);
 
         // RGB image
         ColorImage color_image_;

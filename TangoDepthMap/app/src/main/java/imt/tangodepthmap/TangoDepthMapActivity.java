@@ -45,6 +45,8 @@ public class TangoDepthMapActivity extends AppCompatActivity {
     private CheckBox mDepthmapCheckbox;
     // Checkbox recording the different images if checked
     private CheckBox mRecordCheckbox;
+    // Checkbox displaying the face detector on the depthmap
+    private CheckBox mFaceDetectorCheckbox;
 
     // Tango Service connection.
     ServiceConnection mTangoServiceConnection = new ServiceConnection() {
@@ -76,7 +78,7 @@ public class TangoDepthMapActivity extends AppCompatActivity {
         }
     }
 
-    // Implementation of the checkbox displaying the depthmap
+    // Implementation of the checkbox displaying the face detector on the depthmap
     // We use alpha blending to switch between the color image and the depth image
     private class DepthmapCheckboxListener implements CheckBox.OnCheckedChangeListener {
         @Override
@@ -90,6 +92,21 @@ public class TangoDepthMapActivity extends AppCompatActivity {
                     //Display the color image and hide the depth image and the depth cursor
                     TangoJNINative.setDepthAlphaValue(0.0f);
                     mDepthDistanceSeekbar.setVisibility(View.GONE);
+                }
+            }
+        }
+    }
+
+    // Implementation of the checkbox displaying the depthmap
+    // We use alpha blending to switch between the color image and the depth image
+    private class FaceDetectorCheckboxListener implements CheckBox.OnCheckedChangeListener {
+        @Override
+        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+            if (buttonView == mFaceDetectorCheckbox) {
+                if (isChecked) {
+                    TangoJNINative.useFaceDetector(true);
+                } else {
+                    TangoJNINative.useFaceDetector(false);
                 }
             }
         }
@@ -159,6 +176,10 @@ public class TangoDepthMapActivity extends AppCompatActivity {
         mRecordCheckbox = (CheckBox) findViewById(R.id.record_checkbox);
         mRecordCheckbox.setOnCheckedChangeListener(new RecordCheckboxListener());
         mRecordCheckbox.setChecked(false);
+
+        mFaceDetectorCheckbox = (CheckBox) findViewById(R.id.face_detect_checkbox);
+        mFaceDetectorCheckbox.setOnCheckedChangeListener(new FaceDetectorCheckboxListener());
+        mFaceDetectorCheckbox.setChecked(false);
 
         // OpenGL view where all of the graphics are drawn
         mGLView = (GLSurfaceView) findViewById(R.id.surfaceview);
