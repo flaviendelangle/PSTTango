@@ -130,6 +130,9 @@ namespace tango_depth_map {
         void TangoConnect();
 
         cv::CascadeClassifier faceDetector;
+        bool _classifierLoaded;
+
+        void detectAndDisplay( cv::Mat frameDetect, cv::Mat frameShow );
 
         // RGB image
         ColorImage color_image_;
@@ -166,6 +169,18 @@ namespace tango_depth_map {
 
         JavaVM* _javaVM;
         jobject _context;
+
+        void CreateColorImg();
+
+        std::vector<uint8_t> yuv_buffer_;
+        std::vector<uint8_t> yuv_temp_buffer_;
+
+        bool swap_buffer_signal_;
+        std::mutex yuv_buffer_mutex_;
+
+        size_t yuv_width_;
+        size_t yuv_height_;
+        size_t yuv_size_;
     };
 }  // namespace tango_depth_map
 

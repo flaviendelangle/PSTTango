@@ -67,13 +67,13 @@ Java_imt_tangodepthmap_TangoJNINative_onGlSurfaceDrawFrame(
 JNIEXPORT void JNICALL
 Java_imt_tangodepthmap_TangoJNINative_setDepthAlphaValue(
         JNIEnv *, jobject, jfloat alpha) {
-    return app.SetDepthAlphaValue(alpha);
+    app.SetDepthAlphaValue(alpha);
 }
 
 JNIEXPORT void JNICALL
 Java_imt_tangodepthmap_TangoJNINative_setRenderingDistanceValue(
         JNIEnv *, jobject ,jint renderingDistance) {
-    return app.SetRenderingDistance(renderingDistance);
+    app.SetRenderingDistance(renderingDistance);
 }
 
 JNIEXPORT void JNICALL
@@ -84,13 +84,13 @@ Java_imt_tangodepthmap_TangoJNINative_setRecordingMode(
     std::string cppPath = std::string(pathString);
     env->ReleaseStringUTFChars(path, pathString);
 
-    return app.SetRecordingMode(isRecording, cppPath);
+    app.SetRecordingMode(isRecording, cppPath);
 }
 
 JNIEXPORT void JNICALL
 Java_imt_tangodepthmap_TangoJNINative_onDisplayChanged(
         JNIEnv *, jobject, jint display_rotation, jint color_camera_rotation) {
-    return app.OnDisplayChanged(display_rotation, color_camera_rotation);
+    app.OnDisplayChanged(display_rotation, color_camera_rotation);
 }
 
 #ifdef __cplusplus
