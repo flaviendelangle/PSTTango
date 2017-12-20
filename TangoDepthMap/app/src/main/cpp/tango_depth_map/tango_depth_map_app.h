@@ -142,13 +142,10 @@ namespace tango_depth_map {
         // Depth image created by projecting Point Cloud onto RGB image plane.
         DepthImage depth_image_;
 
-        // Write images to _recordingPath
         bool _isRecording;
-
-        // Write images to _recordingPath
         bool _isDetectingFaces;
 
-        // Path to the directory where images should be saved
+        // Path to the directory where images should be recorded
         std::string _recordingPath;
 
         std::vector<cv::Mat> _imagesBuffer;
@@ -172,6 +169,7 @@ namespace tango_depth_map {
 
         TangoSupport_Rotation color_camera_to_display_rotation_;
 
+        // Caching for later purpose
         JavaVM* _javaVM;
         jobject _context;
     };

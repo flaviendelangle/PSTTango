@@ -433,9 +433,7 @@ namespace tango_depth_map {
         } else {
             if (!_imagesBuffer.empty()) {
                 for (int i = 0; i < _imagesBuffer.size(); i += 4) {
-
                     std::string strTimestamp = formatTimestamp(timestamp);
-
 
                     //cv::imwrite(_recordingPath + "fullDepth_" +  strTimestamp + ".png", _imagesBuffer[i]);
                     //cv::imwrite(_recordingPath + "smallDepth_" + strTimestamp + ".png", _imagesBuffer[i + 1]);
@@ -446,21 +444,18 @@ namespace tango_depth_map {
                 _imagesBuffer.clear();
 
                 JNIEnv *env;
-                LOGE("AttachCurrentThread");
                 _javaVM->AttachCurrentThread(&env, NULL);
 
                 // access the class imt.tangodepthmap.TangoDepthMapActivity
                 jclass cls = env->FindClass("imt/tangodepthmap/TangoDepthMapActivity");
                 if (cls == nullptr) LOGE("Class not found");
                 else {
-                    LOGE("Class found");
                     // access the static method refreshDirectory
                     // (Landroid/content/Context;)V : 1 parameter of type Context, return Void
                     jmethodID methodId = env->GetStaticMethodID(cls, "refreshDirectory",
                                                                 "(Landroid/content/Context;)V");
                     if (methodId == nullptr) LOGE("ERROR: method not found !");
                     else {
-                        LOGE("Method found !");
                         // call the static method with _context as a parameter
                         env->CallStaticVoidMethod(cls, methodId, _context);
                     }
@@ -469,6 +464,7 @@ namespace tango_depth_map {
         }
     }
 
+    //Returns a XXXX timestamp
     std::string SynchronizationApplication::formatTimestamp(int timestamp){
         std::string strTimestamp = to_string(timestamp);
         int nbSize = (int)strTimestamp.length();

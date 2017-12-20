@@ -124,7 +124,6 @@ public class TangoDepthMapActivity extends AppCompatActivity {
                     //Get an available directory to record current images and send it to C++
                     recordingPath = Storage.getFilePath();
                     TangoJNINative.setRecordingMode(true, recordingPath);
-
                 } else {
                     TangoJNINative.setRecordingMode(false, "");
                 }
